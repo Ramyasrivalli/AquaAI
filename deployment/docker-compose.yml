@@ -1,0 +1,16 @@
+version: "3.9"
+
+services:
+  water-quality-ai:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile
+    container_name: water_quality_ai
+    ports:
+      - "5050:5050"
+    volumes:
+      - ../models:/app/models
+      - ../water_quality.db:/app/water_quality.db
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1

@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block title %}Login — AquaAI Water Intelligence{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <!-- Header Branding -->
+        <div class="text-center p-4 bg-light border-bottom">
+            <i class="fa-solid fa-droplet text-primary display-5 mb-2"></i>
+            <h3 class="fw-bold mb-1">AquaAI Intelligence</h3>
+            <p class="text-muted small mb-0">Drinking Water Safety & Quality Monitoring</p>
+        </div>
+
+        <!-- Auth Tabs Header (Colored Active Tabs) -->
+        <div class="card-header bg-white border-bottom-0 pt-3 px-3 pb-0">
+            <ul class="nav nav-tabs nav-justified" id="authTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link {% if active_tab == 'login' or not active_tab %}active{% endif %}" id="login-tab" data-bs-toggle="tab" data-bs-target="#login" type="button" role="tab">
+                        <i class="fa-solid fa-key me-1"></i> Log In
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link {% if active_tab == 'register' %}active{% endif %}" id="register-tab" data-bs-toggle="tab" data-bs-target="#register" type="button" role="tab">
+                        <i class="fa-solid fa-user-plus me-1"></i> Register
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link {% if active_tab == 'forgot' %}active{% endif %}" id="forgot-tab" data-bs-toggle="tab" data-bs-target="#forgot" type="button" role="tab">
+                        <i class="fa-solid fa-shield-halved me-1"></i> Reset
+                    </button>
+                </li>
+            </ul>
+        </div>
+
+        <div class="card-body p-4">
+            <div class="tab-content" id="authTabsContent">
+                <!-- 1. LOGIN TAB -->
+                <div class="tab-pane fade {% if active_tab == 'login' or not active_tab %}show active{% endif %}" id="login" role="tabpanel">
+                    <form action="{{ url_for('login') }}" method="POST">
+                        <div class="mb-3">
+                            <label for="login_username" class="form-label">Email Address or Username</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fa-solid fa-envelope text-muted"></i></span>
+                                <input type="text" class="form-control" id="login_username" name="username" required placeholder="user@example.com or username">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="login_password" class="form-label">Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fa-solid fa-lock text-muted"></i></span>
+                                <input type="password" class="form-control" id="login_password" name="password" required placeholder="Enter your password">
+                                <button class="btn btn-outline-secondary toggle-password" type="button" data-target="login_password" title="Toggle password visibility">
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 py-2 mt-2 shadow-sm">
+                            <i class="fa-solid fa-right-to-bracket me-1"></i> Log In to Dashboard
+                        </button>
+                    </form>
+                </div>
+
+                <!-- 2. REGISTER TAB -->
+                <div class="tab-pane fade {% if active_tab == 'register' %}show active{% endif %}" id="register" role="tabpanel">
+                    <form action="{{ url_for('register') }}" method="POST">
+                        <div class="mb-3">
+                            <label for="reg_username" class="form-label">Email Address or Username</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fa-solid fa-at text-muted"></i></span>
+                                <input type="text" class="form-control" id="reg_username" name="username" required placeholder="student@example.com or username">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="reg_password" class="form-label">Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fa-solid fa-lock text-muted"></i></span>
+                                <input type="password" class="form-control" id="reg_password" name="password" required placeholder="At least 4 characters">
+                                <button class="btn btn-outline-secondary toggle-password" type="button" data-target="reg_password" title="Toggle password visibility">
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="reg_confirm" class="form-label">Confirm Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fa-solid fa-shield text-muted"></i></span>
+                                <input type="password" class="form-control" id="reg_confirm" name="confirm_password" required placeholder="Re-type password">
+                                <button class="btn btn-outline-secondary toggle-password" type="button" data-target="reg_confirm" title="Toggle password visibility">
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="sec_question" class="form-label">Security Question (Offline Reset)</label>
+                            <select class="form-select" id="sec_question" name="security_question">
+                                <option value="What is your favorite color?">What is your favorite color?</option>
+                                <option value="What was your first pet's name?">What was your first pet's name?</option>
+                                <option value="What city were you born in?">What city were you born in?</option>
+                                <option value="What is your favorite movie?">What is your favorite movie?</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="sec_answer" class="form-label">Security Answer</label>
+                            <input type="text" class="form-control" id="sec_answer" name="security_answer" required placeholder="Your answer (case-insensitive)">
+                        </div>
+                        <button type="submit" class="btn btn-success w-100 py-2 mt-2 shadow-sm">
+                            <i class="fa-solid fa-user-check me-1"></i> Register Account
+                        </button>
+                    </form>
+                </div>
+
+                <!-- 3. FORGOT PASSWORD TAB -->
+                <div class="tab-pane fade {% if active_tab == 'forgot' %}show active{% endif %}" id="forgot" role="tabpanel">
+                    <form action="{{ url_for('forgot_password') }}" method="POST">
+                        <div class="mb-3">
+                            <label for="reset_username" class="form-label">Account Email / Username</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fa-solid fa-user text-muted"></i></span>
+                                <input type="text" class="form-control" id="reset_username" name="username" required placeholder="Enter registered email or username">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="reset_answer" class="form-label">Security Answer</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fa-solid fa-circle-question text-muted"></i></span>
+                                <input type="text" class="form-control" id="reset_answer" name="security_answer" required placeholder="Answer to your security question">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="new_password" class="form-label">New Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fa-solid fa-key text-muted"></i></span>
+                                <input type="password" class="form-control" id="new_password" name="new_password" required placeholder="Enter new password">
+                                <button class="btn btn-outline-secondary toggle-password" type="button" data-target="new_password" title="Toggle password visibility">
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-warning text-dark fw-bold w-100 py-2 mt-2 shadow-sm">
+                            <i class="fa-solid fa-rotate-left me-1"></i> Reset Password
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block title %}About — AquaAI Water Intelligence{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <h2 class="fw-bold mb-1"><i class="fa-solid fa-circle-info text-primary me-2"></i>About AquaAI Water Intelligence</h2>
+    <p class="text-muted">A production-grade web system designed to evaluate drinking water potability, monitor safety parameters, and deliver automated treatment guidance.</p>
+</div>
+
+<!-- 1. Project Objective -->
+<div class="card mb-4">
+    <div class="card-header bg-white fw-bold">
+        <i class="fa-solid fa-bullseye me-2 text-primary"></i>1. Project Objective
+    </div>
+    <div class="card-body p-4">
+        <p class="lead text-dark">Access to safe, clean drinking water is a fundamental human necessity and a critical public health objective globally.</p>
+        <p class="mb-0"><strong>AquaAI</strong> combines automated water safety analytics with World Health Organization (WHO) and Environmental Protection Agency (EPA) standards to provide instant potability assessments. By evaluating physical, chemical, and biological parameters, the system empowers municipal plants, water quality inspectors, and consumers to identify contamination risks immediately.</p>
+    </div>
+</div>
+
+<!-- 2. Dataset Overview & 3. Water Parameters Grid -->
+<div class="row g-4 mb-4">
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header bg-white fw-bold">
+                <i class="fa-solid fa-database me-2 text-primary"></i>2. Benchmark Dataset
+            </div>
+            <div class="card-body p-4">
+                <p class="text-muted mb-3">Evaluated against standard water potability datasets containing 3,276 water sample records collected across various water bodies and treatment facilities.</p>
+                <div class="d-flex flex-wrap gap-2">
+                    <span class="badge bg-primary px-3 py-2">3,276 Water Records</span>
+                    <span class="badge bg-secondary px-3 py-2">9 Physico-Chemical Metrics</span>
+                    <span class="badge bg-success px-3 py-2">WHO Safety Benchmarks</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header bg-white fw-bold">
+                <i class="fa-solid fa-flask me-2 text-info"></i>3. Water Quality Parameters Analyzed
+            </div>
+            <div class="card-body p-4">
+                <div class="row g-2">
+                    <div class="col-6"><span class="badge bg-light text-dark border w-100 p-2 text-start"><i class="fa-solid fa-droplet text-primary me-1"></i> pH Level (6.5 – 8.5)</span></div>
+                    <div class="col-6"><span class="badge bg-light text-dark border w-100 p-2 text-start"><i class="fa-solid fa-cubes text-secondary me-1"></i> Hardness (mg/L)</span></div>
+                    <div class="col-6"><span class="badge bg-light text-dark border w-100 p-2 text-start"><i class="fa-solid fa-layer-group text-warning me-1"></i> TDS / Solids (ppm)</span></div>
+                    <div class="col-6"><span class="badge bg-light text-dark border w-100 p-2 text-start"><i class="fa-solid fa-vial text-info me-1"></i> Chloramines (ppm)</span></div>
+                    <div class="col-6"><span class="badge bg-light text-dark border w-100 p-2 text-start"><i class="fa-solid fa-atom text-danger me-1"></i> Sulfate (mg/L)</span></div>
+                    <div class="col-6"><span class="badge bg-light text-dark border w-100 p-2 text-start"><i class="fa-solid fa-bolt text-warning me-1"></i> Conductivity (μS/cm)</span></div>
+                    <div class="col-6"><span class="badge bg-light text-dark border w-100 p-2 text-start"><i class="fa-solid fa-leaf text-success me-1"></i> Organic Carbon (ppm)</span></div>
+                    <div class="col-6"><span class="badge bg-light text-dark border w-100 p-2 text-start"><i class="fa-solid fa-triangle-exclamation text-danger me-1"></i> Trihalomethanes (μg/L)</span></div>
+                    <div class="col-12"><span class="badge bg-light text-dark border w-100 p-2 text-start"><i class="fa-solid fa-eye text-muted me-1"></i> Turbidity (NTU)</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 4. Technology Stack & 5. Key System Features -->
+<div class="row g-4 mb-4">
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header bg-white fw-bold">
+                <i class="fa-solid fa-layer-group me-2 text-primary"></i>4. Technology Stack
+            </div>
+            <div class="card-body p-4">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item"><strong>Backend Web Framework</strong>: Python Flask 3.0</li>
+                    <li class="list-group-item"><strong>Database Engine</strong>: SQLite3 with thread-safe context managers</li>
+                    <li class="list-group-item"><strong>Frontend Interface</strong>: HTML5, CSS3, Bootstrap 5, FontAwesome 6</li>
+                    <li class="list-group-item"><strong>Data Visualization & Analytics</strong>: Chart.js</li>
+                    <li class="list-group-item"><strong>PDF Certificate Generator</strong>: ReportLab Engine</li>
+                    <li class="list-group-item"><strong>Inference Classifier</strong>: Scikit-Learn Support Vector Classifier (briefly integrated)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header bg-white fw-bold">
+                <i class="fa-solid fa-star me-2 text-warning"></i>5. Key Features
+            </div>
+            <div class="card-body p-4">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item"><i class="fa-solid fa-check text-success me-2"></i><strong>Real-time Potability Classification</strong>: Instant automated potability assessment.</li>
+                    <li class="list-group-item"><i class="fa-solid fa-check text-success me-2"></i><strong>Deterministic Quality Score (0–100)</strong>: Comprehensive water health rating.</li>
+                    <li class="list-group-item"><i class="fa-solid fa-check text-success me-2"></i><strong>WHO/EPA Parameter Diagnostics</strong>: Detailed status breakdown against guidelines.</li>
+                    <li class="list-group-item"><i class="fa-solid fa-check text-success me-2"></i><strong>Actionable Treatment Guidance</strong>: Specific mitigation steps (RO, GAC, Softening).</li>
+                    <li class="list-group-item"><i class="fa-solid fa-check text-success me-2"></i><strong>Printable Laboratory PDF Reports</strong>: Official certificates with diagnostic logs.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 6. Future Scope & 7. Developer Information -->
+<div class="card mb-4">
+    <div class="card-header bg-white fw-bold">
+        <i class="fa-solid fa-rocket me-2 text-success"></i>6. Future Scope & 7. Developer Information
+    </div>
+    <div class="card-body p-4">
+        <div class="row g-4">
+            <div class="col-md-6">
+                <h5 class="fw-bold mb-2">Future Enhancements Scope</h5>
+                <ul class="small text-muted ps-3 mb-0">
+                    <li class="mb-1">Integration with IoT water quality sensor hardware for real-time telemetry streaming.</li>
+                    <li class="mb-1">Geographical GIS mapping of regional water safety indices.</li>
+                    <li>Automated SMS and email emergency alerts for contamination threshold breaches.</li>
+                </ul>
+            </div>
+            <div class="col-md-6">
+                <h5 class="fw-bold mb-2">Developer Information</h5>
+                <p class="small text-muted mb-0">Developed as a production-grade Software Architecture & AI Systems Demonstration project focusing on reliable water quality intelligence, modular web design, clean software design patterns, and deployment readiness.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- WHO Standards Reference Table -->
+<div class="card">
+    <div class="card-header bg-white fw-bold">
+        <i class="fa-solid fa-book-medical me-2 text-primary"></i>WHO / EPA Drinking Water Guidelines Reference Table
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Parameter</th>
+                        <th>Unit</th>
+                        <th>WHO / EPA Target Safety Threshold</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for key, info in who_standards.items() %}
+                    <tr>
+                        <td class="fw-bold">{{ feature_labels[key] }}</td>
+                        <td>{{ info.unit if info.unit else '-' }}</td>
+                        <td>{{ info.desc }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
