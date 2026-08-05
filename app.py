@@ -30,16 +30,12 @@ from core.database import (
     init_db,
 )
 from core.helpers import (
-    FEATURE_LABELS,
     VALIDATION_RANGES,
-    WHO_STANDARDS,
     record_to_feature_dict,
 )
 from core.prediction import (
     AnalysisResult,
     evaluate_parameters,
-    get_model_meta,
-    get_model_name,
     load_artifacts,
     run_inference,
 )
@@ -327,21 +323,6 @@ def analytics():
         "analytics.html",
         active_page="analytics",
         **analytics_data,
-    )
-
-
-@app.route("/about")
-@login_required
-def about():
-    """Render system metadata, model benchmark specs, and WHO guidelines reference."""
-    meta = get_model_meta()
-    return render_template(
-        "about.html",
-        active_page="about",
-        model_name=get_model_name(),
-        meta_metrics=meta.get("metrics", {}),
-        who_standards=WHO_STANDARDS,
-        feature_labels=FEATURE_LABELS,
     )
 
 

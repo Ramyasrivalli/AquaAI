@@ -52,8 +52,7 @@ water_prob_ai/
 │   ├── dashboard.html
 │   ├── prediction.html
 │   ├── analytics.html
-│   ├── history.html
-│   └── about.html
+│   └── history.html
 │
 ├── app.py                      # Flask Application Entry Point
 ├── train.py                    # Offline ML Model Training Script

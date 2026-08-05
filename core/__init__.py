@@ -25,7 +25,7 @@ from core.helpers import (
     WHO_STANDARDS,
     record_to_feature_dict,
 )
-from core.prediction import get_model_meta, get_model_name, run_inference
+from core.prediction import run_inference
 from core.report import generate_pdf_report
 from core.validation import parse_form_features, validate_credentials
 
@@ -41,8 +41,6 @@ __all__ = [
     "get_summary_stats",
     "get_predictions_df",
     "get_analytics_summary",
-    "get_model_name",
-    "get_model_meta",
     "run_inference",
     "generate_pdf_report",
     "parse_form_features",
