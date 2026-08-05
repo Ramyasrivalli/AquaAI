@@ -2,26 +2,21 @@
 validation.py — Parameter & Credential Validation Logic.
 """
 
-import math
 import re
-from typing import Dict, List, Tuple
+from typing import Dict, Tuple
 from core.helpers import FEATURE_COLS, VALIDATION_RANGES
 
 
-def validate_water_params(params: Dict[str, float]) -> Tuple[bool, List[str]]:
-    """Validate parameter types, numerical limits, and NaN values."""
-    errors = []
+def parse_form_features(form_data: Dict[str, str]) -> Dict[str, float]:
+    """Parse HTTP request form fields into float feature values with safe default fallback."""
+    form_values = {}
     for col in FEATURE_COLS:
-        val = params.get(col)
-        if val is None or not isinstance(val, (int, float)) or math.isnan(val) or math.isinf(val):
-            errors.append(f"Invalid numerical value for '{col}'.")
-            continue
-
-        bounds = VALIDATION_RANGES.get(col, {})
-        if val < bounds.get("min", 0.0) or val > bounds.get("max", 1e6):
-            errors.append(f"Parameter '{col}' ({val}) is out of allowed range [{bounds['min']}, {bounds['max']}].")
-
-    return len(errors) == 0, errors
+        val_str = form_data.get(col, "")
+        try:
+            form_values[col] = float(val_str)
+        except (ValueError, TypeError):
+            form_values[col] = VALIDATION_RANGES[col]["default"]
+    return form_values
 
 
 def validate_credentials(username: str, password: str) -> Tuple[bool, str]:
@@ -33,7 +28,6 @@ def validate_credentials(username: str, password: str) -> Tuple[bool, str]:
     if len(user) < 3 or len(user) > 100:
         return False, "Username/email must be between 3 and 100 characters."
 
-    # Validate email or standard username format
     is_email = "@" in user
     if is_email:
         email_regex = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"

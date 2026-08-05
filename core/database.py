@@ -6,7 +6,7 @@ import sqlite3
 from contextlib import contextmanager
 from typing import Any, Dict, Generator, List, Optional
 import pandas as pd
-from core.helpers import DB_PATH
+from config.settings import DB_PATH
 
 
 def get_connection() -> sqlite3.Connection:
@@ -71,7 +71,6 @@ def init_db() -> None:
             """
         )
 
-        # Check for missing security columns in existing databases and perform safe alter
         cur.execute("PRAGMA table_info(users)")
         columns = [column[1] for column in cur.fetchall()]
         if "security_question" not in columns:
@@ -197,3 +196,48 @@ def get_predictions_df(user_id: Optional[int] = None) -> pd.DataFrame:
     df = pd.read_sql_query(query, conn, params=(user_id,) if user_id else ())
     conn.close()
     return df
+
+
+def get_analytics_summary(user_id: int) -> Dict[str, Any]:
+    """Compute statistical parameter summaries and chart metrics for analytics dashboard."""
+    df = get_predictions_df(user_id=user_id)
+    chart_dates = []
+    scores = []
+    ph_values = []
+    solids_values = []
+    potable_count = 0
+    non_potable_count = 0
+    stats_table = []
+
+    if not df.empty:
+        chart_dates = df["created_at"].astype(str).tolist()
+        scores = df["quality_score"].tolist()
+        ph_values = df["ph"].tolist()
+        solids_values = df["solids"].tolist()
+
+        potable_count = int((df["result"] == 1).sum())
+        non_potable_count = int((df["result"] == 0).sum())
+
+        num_cols = ["ph", "hardness", "solids", "chloramines", "sulfate", "conductivity", "organic_carbon", "trihalomethanes", "turbidity", "quality_score"]
+        desc = df[num_cols].describe().T.reset_index()
+        for _, row in desc.iterrows():
+            stats_table.append({
+                "parameter": row["index"],
+                "mean": row["mean"],
+                "std": row["std"],
+                "min": row["min"],
+                "25%": row["25%"],
+                "50%": row["50%"],
+                "75%": row["75%"],
+                "max": row["max"],
+            })
+
+    return {
+        "chart_dates": chart_dates,
+        "scores": scores,
+        "ph_values": ph_values,
+        "solids_values": solids_values,
+        "potable_count": potable_count,
+        "non_potable_count": non_potable_count,
+        "stats_table": stats_table,
+    }

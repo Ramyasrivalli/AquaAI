@@ -4,12 +4,12 @@ Core application business logic package.
 
 from core.auth import (
     authenticate_user,
-    get_security_question,
     register_user,
     reset_password_with_security_answer,
 )
 from core.database import (
     delete_prediction,
+    get_analytics_summary,
     get_prediction_by_id,
     get_predictions_df,
     get_summary_stats,
@@ -23,15 +23,15 @@ from core.helpers import (
     FEATURE_UNITS,
     VALIDATION_RANGES,
     WHO_STANDARDS,
+    record_to_feature_dict,
 )
 from core.prediction import get_model_meta, get_model_name, run_inference
 from core.report import generate_pdf_report
-from core.validation import validate_credentials, validate_water_params
+from core.validation import parse_form_features, validate_credentials
 
 __all__ = [
     "register_user",
     "authenticate_user",
-    "get_security_question",
     "reset_password_with_security_answer",
     "init_db",
     "save_prediction",
@@ -40,12 +40,14 @@ __all__ = [
     "delete_prediction",
     "get_summary_stats",
     "get_predictions_df",
+    "get_analytics_summary",
     "get_model_name",
     "get_model_meta",
     "run_inference",
     "generate_pdf_report",
-    "validate_water_params",
+    "parse_form_features",
     "validate_credentials",
+    "record_to_feature_dict",
     "FEATURE_COLS",
     "FEATURE_LABELS",
     "FEATURE_UNITS",

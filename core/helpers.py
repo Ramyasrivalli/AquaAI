@@ -76,3 +76,18 @@ WHO_STANDARDS: Dict[str, Dict[str, Any]] = {
     "Trihalomethanes": {"unit": "μg/L", "desc": "EPA limit <= 80 μg/L"},
     "Turbidity": {"unit": "NTU", "desc": "WHO ideal < 1.0 NTU for drinking"},
 }
+
+
+def record_to_feature_dict(rec: Dict[str, Any]) -> Dict[str, float]:
+    """Extract standard feature dictionary from SQLite database prediction row record."""
+    return {
+        "ph": rec.get("ph", 7.2),
+        "Hardness": rec.get("hardness", 196.3),
+        "Solids": rec.get("solids", 14200.0),
+        "Chloramines": rec.get("chloramines", 7.13),
+        "Sulfate": rec.get("sulfate", 333.0),
+        "Conductivity": rec.get("conductivity", 421.0),
+        "Organic_carbon": rec.get("organic_carbon", 14.1),
+        "Trihalomethanes": rec.get("trihalomethanes", 66.3),
+        "Turbidity": rec.get("turbidity", 3.96),
+    }

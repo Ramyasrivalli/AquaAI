@@ -1,5 +1,5 @@
 """
-app.py — Production Flask Web Application Entry Point & Authentication Handler.
+app.py — Lightweight Production Flask Entry Point & Route Handlers.
 """
 
 from functools import wraps
@@ -22,6 +22,7 @@ from core.auth import (
 )
 from core.database import (
     delete_prediction,
+    get_analytics_summary,
     get_prediction_by_id,
     get_predictions_df,
     get_summary_stats,
@@ -29,11 +30,10 @@ from core.database import (
     init_db,
 )
 from core.helpers import (
-    FEATURE_COLS,
     FEATURE_LABELS,
-    FEATURE_UNITS,
     VALIDATION_RANGES,
     WHO_STANDARDS,
+    record_to_feature_dict,
 )
 from core.prediction import (
     AnalysisResult,
@@ -44,7 +44,7 @@ from core.prediction import (
     run_inference,
 )
 from core.report import generate_pdf_report
-from core.validation import validate_credentials
+from core.validation import parse_form_features, validate_credentials
 
 app = Flask(__name__)
 app.secret_key = SECRET_KEY
@@ -163,11 +163,8 @@ def dashboard():
     recent_history = get_user_predictions(user_id=user_id, limit=5)
 
     df_user = get_predictions_df(user_id=user_id)
-    chart_dates = []
-    chart_scores = []
-    if not df_user.empty and "created_at" in df_user.columns:
-        chart_dates = df_user["created_at"].astype(str).tolist()
-        chart_scores = df_user["quality_score"].tolist()
+    chart_dates = df_user["created_at"].astype(str).tolist() if not df_user.empty and "created_at" in df_user.columns else []
+    chart_scores = df_user["quality_score"].tolist() if not df_user.empty and "quality_score" in df_user.columns else []
 
     return render_template(
         "dashboard.html",
@@ -188,29 +185,17 @@ def prediction():
     record_id = None
     form_values = None
 
-    # Option to explicitly start a fresh analysis
     if request.args.get("new") == "1":
         session.pop("active_prediction", None)
         session.pop("active_form_values", None)
         session.pop("active_record_id", None)
         return redirect(url_for("prediction"))
 
-    # Option to load a historical analysis record by ID
     load_id = request.args.get("load_id")
     if load_id and load_id.isdigit():
         rec = get_prediction_by_id(int(load_id))
         if rec:
-            form_values = {
-                "ph": rec["ph"],
-                "Hardness": rec["hardness"],
-                "Solids": rec["solids"],
-                "Chloramines": rec["chloramines"],
-                "Sulfate": rec["sulfate"],
-                "Conductivity": rec["conductivity"],
-                "Organic_carbon": rec["organic_carbon"],
-                "Trihalomethanes": rec["trihalomethanes"],
-                "Turbidity": rec["turbidity"],
-            }
+            form_values = record_to_feature_dict(rec)
             evals, recs, uses = evaluate_parameters(form_values)
             res_obj = AnalysisResult(
                 is_potable=bool(rec["result"] == 1),
@@ -229,14 +214,7 @@ def prediction():
             flash(f"Loaded historical Analysis Record #{rec['id']}.", "info")
 
     if request.method == "POST":
-        form_values = {}
-        for col in FEATURE_COLS:
-            val_str = request.form.get(col, "")
-            try:
-                form_values[col] = float(val_str)
-            except ValueError:
-                form_values[col] = VALIDATION_RANGES[col]["default"]
-
+        form_values = parse_form_features(request.form)
         try:
             res_obj, record_id = run_inference(form_values, user_id=user_id, save_to_db=True)
             result = res_obj
@@ -276,7 +254,6 @@ def history():
 
     records = get_user_predictions(user_id=user_id, limit=500)
 
-    # Search & Filter
     filtered = []
     for r in records:
         if result_filter == "1" and r["result"] != 1:
@@ -286,15 +263,11 @@ def history():
 
         if search_query:
             q_low = search_query.lower()
-            date_str = str(r["created_at"]).lower()
-            status_str = str(r["quality_status"]).lower()
-            id_str = str(r["id"])
-            if q_low not in date_str and q_low not in status_str and q_low not in id_str:
+            if q_low not in str(r["created_at"]).lower() and q_low not in str(r["quality_status"]).lower() and q_low not in str(r["id"]):
                 continue
 
         filtered.append(r)
 
-    # Sorting
     if sort_order == "oldest":
         filtered.sort(key=lambda x: x["created_at"])
     elif sort_order == "score_desc":
@@ -349,50 +322,11 @@ def delete_history_record(prediction_id):
 @login_required
 def analytics():
     """Render dynamic statistical charts generated from database history."""
-    user_id = session["user_id"]
-    df = get_predictions_df(user_id=user_id)
-
-    chart_dates = []
-    scores = []
-    ph_values = []
-    solids_values = []
-    potable_count = 0
-    non_potable_count = 0
-    stats_table = []
-
-    if not df.empty:
-        chart_dates = df["created_at"].astype(str).tolist()
-        scores = df["quality_score"].tolist()
-        ph_values = df["ph"].tolist()
-        solids_values = df["solids"].tolist()
-
-        potable_count = int((df["result"] == 1).sum())
-        non_potable_count = int((df["result"] == 0).sum())
-
-        num_cols = ["ph", "hardness", "solids", "chloramines", "sulfate", "conductivity", "organic_carbon", "trihalomethanes", "turbidity", "quality_score"]
-        desc = df[num_cols].describe().T.reset_index()
-        for _, row in desc.iterrows():
-            stats_table.append({
-                "parameter": row["index"],
-                "mean": row["mean"],
-                "std": row["std"],
-                "min": row["min"],
-                "25%": row["25%"],
-                "50%": row["50%"],
-                "75%": row["75%"],
-                "max": row["max"],
-            })
-
+    analytics_data = get_analytics_summary(session["user_id"])
     return render_template(
         "analytics.html",
         active_page="analytics",
-        chart_dates=chart_dates,
-        scores=scores,
-        ph_values=ph_values,
-        solids_values=solids_values,
-        potable_count=potable_count,
-        non_potable_count=non_potable_count,
-        stats_table=stats_table,
+        **analytics_data,
     )
 
 
@@ -400,15 +334,12 @@ def analytics():
 @login_required
 def about():
     """Render system metadata, model benchmark specs, and WHO guidelines reference."""
-    model_name = get_model_name()
     meta = get_model_meta()
-    meta_metrics = meta.get("metrics", {})
-
     return render_template(
         "about.html",
         active_page="about",
-        model_name=model_name,
-        meta_metrics=meta_metrics,
+        model_name=get_model_name(),
+        meta_metrics=meta.get("metrics", {}),
         who_standards=WHO_STANDARDS,
         feature_labels=FEATURE_LABELS,
     )
@@ -417,24 +348,13 @@ def about():
 @app.route("/report/<int:prediction_id>")
 @login_required
 def get_report(prediction_id):
-    """Generate and return complete ReportLab PDF laboratory report file attachment matching prediction page."""
+    """Generate and return complete ReportLab PDF laboratory report file attachment."""
     rec = get_prediction_by_id(prediction_id)
     if not rec:
         flash("Prediction record not found.", "error")
         return redirect(url_for("history"))
 
-    feature_dict = {
-        "ph": rec["ph"],
-        "Hardness": rec["hardness"],
-        "Solids": rec["solids"],
-        "Chloramines": rec["chloramines"],
-        "Sulfate": rec["sulfate"],
-        "Conductivity": rec["conductivity"],
-        "Organic_carbon": rec["organic_carbon"],
-        "Trihalomethanes": rec["trihalomethanes"],
-        "Turbidity": rec["turbidity"],
-    }
-
+    feature_dict = record_to_feature_dict(rec)
     evals, recs, uses = evaluate_parameters(feature_dict)
 
     pdf_bytes = generate_pdf_report(
