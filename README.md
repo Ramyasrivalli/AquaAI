@@ -81,11 +81,5 @@ Access the application in your browser at:
 
 ---
 
-## 🐳 Docker Deployment
-
-```bash
-# Launch container using Docker Compose
-docker compose -f deployment/docker-compose.yml up --build -d
-```
 
 Access at `http://localhost:5050`.
