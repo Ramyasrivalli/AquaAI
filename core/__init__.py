@@ -4,8 +4,10 @@ Core application business logic package.
 
 from core.auth import (
     authenticate_user,
+    get_user_security_question,
     register_user,
-    reset_password_with_security_answer,
+    update_user_password,
+    verify_security_answer,
 )
 from core.database import (
     delete_prediction,
@@ -17,6 +19,7 @@ from core.database import (
     init_db,
     save_prediction,
 )
+from core.explainability import compute_feature_explanations
 from core.helpers import (
     FEATURE_COLS,
     FEATURE_LABELS,
@@ -27,12 +30,15 @@ from core.helpers import (
 )
 from core.prediction import run_inference
 from core.report import generate_pdf_report
-from core.validation import parse_form_features, validate_credentials
+from core.validation import parse_form_features, validate_credentials, validate_gmail
 
 __all__ = [
     "register_user",
     "authenticate_user",
-    "reset_password_with_security_answer",
+    "get_user_security_question",
+    "verify_security_answer",
+    "update_user_password",
+    "compute_feature_explanations",
     "init_db",
     "save_prediction",
     "get_user_predictions",
@@ -45,6 +51,7 @@ __all__ = [
     "generate_pdf_report",
     "parse_form_features",
     "validate_credentials",
+    "validate_gmail",
     "record_to_feature_dict",
     "FEATURE_COLS",
     "FEATURE_LABELS",

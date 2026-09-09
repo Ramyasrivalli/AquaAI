@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+
+{% block title %}Compare Water Samples — AquaAI Platform{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h3 class="fw-bold mb-1"><i class="fa-solid fa-code-compare text-primary me-2"></i>Compare Water Quality Samples</h3>
+        <p class="text-muted small mb-0">Evaluate two water samples side-by-side to compare ML potability predictions, quality scores, and parameter safety.</p>
+    </div>
+</div>
+
+<form action="{{ url_for('compare') }}" method="POST">
+    {% if result_a and result_b %}
+    <div class="card mb-4 border-primary shadow-sm">
+        <div class="card-header bg-white fw-bold text-primary py-2">
+            <i class="fa-solid fa-trophy me-2 text-warning"></i>Comparative Analysis Summary
+        </div>
+        <div class="card-body p-3">
+            <div class="row text-center align-items-center">
+                <!-- Sample A Summary -->
+                <div class="col-md-5">
+                    <h5 class="fw-bold mb-1">Sample A</h5>
+                    {% if result_a.is_potable %}
+                        <span class="badge badge-ideal fs-6 py-2 px-3 mb-2"><i class="fa-solid fa-circle-check me-1"></i> SAFE (Potable)</span>
+                    {% else %}
+                        <span class="badge badge-unsafe fs-6 py-2 px-3 mb-2"><i class="fa-solid fa-triangle-exclamation me-1"></i> UNSAFE (Non-Potable)</span>
+                    {% endif %}
+                    <div class="metric-value fs-2">{{ result_a.quality_score }} <span class="fs-6 text-muted">/ 100</span></div>
+                    <div class="small text-muted">{{ result_a.quality_status }} Quality</div>
+                </div>
+
+                <!-- VS Divider -->
+                <div class="col-md-2 my-3 my-md-0">
+                    <div class="badge bg-primary rounded-circle p-3 fs-5 shadow-sm">VS</div>
+                </div>
+
+                <!-- Sample B Summary -->
+                <div class="col-md-5">
+                    <h5 class="fw-bold mb-1">Sample B</h5>
+                    {% if result_b.is_potable %}
+                        <span class="badge badge-ideal fs-6 py-2 px-3 mb-2"><i class="fa-solid fa-circle-check me-1"></i> SAFE (Potable)</span>
+                    {% else %}
+                        <span class="badge badge-unsafe fs-6 py-2 px-3 mb-2"><i class="fa-solid fa-triangle-exclamation me-1"></i> UNSAFE (Non-Potable)</span>
+                    {% endif %}
+                    <div class="metric-value fs-2">{{ result_b.quality_score }} <span class="fs-6 text-muted">/ 100</span></div>
+                    <div class="small text-muted">{{ result_b.quality_status }} Quality</div>
+                </div>
+            </div>
+
+            <!-- Verdict Comparison Highlight -->
+            <div class="alert alert-info text-center mb-0 mt-3 py-2 small border-0 shadow-sm">
+                <i class="fa-solid fa-star me-2 text-warning"></i>
+                {% if result_a.quality_score > result_b.quality_score %}
+                    <strong>Sample A</strong> has a higher Water Quality Score (+{{ (result_a.quality_score - result_b.quality_score)|round(1) }} points) and superior parameter compliance.
+                {% elif result_b.quality_score > result_a.quality_score %}
+                    <strong>Sample B</strong> has a higher Water Quality Score (+{{ (result_b.quality_score - result_a.quality_score)|round(1) }} points) and superior parameter compliance.
+                {% else %}
+                    Both <strong>Sample A</strong> and <strong>Sample B</strong> have identical Water Quality Scores.
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Input Cards Grid -->
+    <div class="row g-3 mb-4">
+        <!-- Sample A Card -->
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header bg-white fw-bold d-flex justify-content-between align-items-center py-2">
+                    <span><i class="fa-solid fa-vial text-primary me-2"></i>Sample A Parameters</span>
+                    <button type="button" class="btn btn-outline-info btn-sm" id="btnFillSampleA">Load Standard</button>
+                </div>
+                <div class="card-body p-3">
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <label class="form-label small mb-1">pH</label>
+                            <input type="number" step="any" class="form-control form-control-sm" name="a_ph" value="{{ form_a.ph if form_a else '7.2' }}" required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small mb-1">Hardness (mg/L)</label>
+                            <input type="number" step="any" class="form-control form-control-sm" name="a_Hardness" value="{{ form_a.Hardness if form_a else '196.3' }}" required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small mb-1">Solids (ppm)</label>
+                            <input type="number" step="any" class="form-control form-control-sm" name="a_Solids" value="{{ form_a.Solids if form_a else '14200' }}" required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small mb-1">Chloramines (ppm)</label>
+                            <input type="number" step="any" class="form-control form-control-sm" name="a_Chloramines" value="{{ form_a.Chloramines if form_a else '7.13' }}" required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small mb-1">Sulfate (mg/L)</label>
+                            <input type="number" step="any" class="form-control form-control-sm" name="a_Sulfate" value="{{ form_a.Sulfate if form_a else '333' }}" required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small mb-1">Conductivity (μS/cm)</label>
+                            <input type="number" step="any" class="form-control form-control-sm" name="a_Conductivity" value="{{ form_a.Conductivity if form_a else '421' }}" required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small mb-1">Organic Carbon (ppm)</label>
+                            <input type="number" step="any" class="form-control form-control-sm" name="a_Organic_carbon" value="{{ form_a.Organic_carbon if form_a else '14.1' }}" required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small mb-1">Trihalomethanes (μg/L)</label>
+                            <input type="number" step="any" class="form-control form-control-sm" name="a_Trihalomethanes" value="{{ form_a.Trihalomethanes if form_a else '66.3' }}" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small mb-1">Turbidity (NTU)</label>
+                            <input type="number" step="any" class="form-control form-control-sm" name="a_Turbidity" value="{{ form_a.Turbidity if form_a else '3.96' }}" required>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sample B Card -->
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header bg-white fw-bold d-flex justify-content-between align-items-center py-2">
+                    <span><i class="fa-solid fa-vial text-info me-2"></i>Sample B Parameters</span>
+                    <button type="button" class="btn btn-outline-info btn-sm" id="btnFillSampleB">Load Purified</button>
+                </div>
+                <div class="card-body p-3">
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <label class="form-label small mb-1">pH</label>
+                            <input type="number" step="any" class="form-control form-control-sm" name="b_ph" value="{{ form_b.ph if form_b else '7.4' }}" required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small mb-1">Hardness (mg/L)</label>
+                            <input type="number" step="any" class="form-control form-control-sm" name="b_Hardness" value="{{ form_b.Hardness if form_b else '120.0' }}" required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small mb-1">Solids (ppm)</label>
+                            <input type="number" step="any" class="form-control form-control-sm" name="b_Solids" value="{{ form_b.Solids if form_b else '350.0' }}" required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small mb-1">Chloramines (ppm)</label>
+                            <input type="number" step="any" class="form-control form-control-sm" name="b_Chloramines" value="{{ form_b.Chloramines if form_b else '2.5' }}" required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small mb-1">Sulfate (mg/L)</label>
+                            <input type="number" step="any" class="form-control form-control-sm" name="b_Sulfate" value="{{ form_b.Sulfate if form_b else '180.0' }}" required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small mb-1">Conductivity (μS/cm)</label>
+                            <input type="number" step="any" class="form-control form-control-sm" name="b_Conductivity" value="{{ form_b.Conductivity if form_b else '350.0' }}" required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small mb-1">Organic Carbon (ppm)</label>
+                            <input type="number" step="any" class="form-control form-control-sm" name="b_Organic_carbon" value="{{ form_b.Organic_carbon if form_b else '1.2' }}" required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small mb-1">Trihalomethanes (μg/L)</label>
+                            <input type="number" step="any" class="form-control form-control-sm" name="b_Trihalomethanes" value="{{ form_b.Trihalomethanes if form_b else '35.0' }}" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small mb-1">Turbidity (NTU)</label>
+                            <input type="number" step="any" class="form-control form-control-sm" name="b_Turbidity" value="{{ form_b.Turbidity if form_b else '0.8' }}" required>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mb-4">
+        <button type="submit" class="btn btn-primary btn-lg px-5 shadow-sm">
+            <i class="fa-solid fa-code-compare me-2"></i> Compare Samples Now
+        </button>
+    </div>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    document.getElementById("btnFillSampleA").addEventListener("click", function() {
+        const sampleA = { a_ph: "7.2", a_Hardness: "196.3", a_Solids: "14200", a_Chloramines: "7.13", a_Sulfate: "333", a_Conductivity: "421", a_Organic_carbon: "14.1", a_Trihalomethanes: "66.3", a_Turbidity: "3.96" };
+        Object.keys(sampleA).forEach(k => {
+            const input = document.querySelector(`input[name='${k}']`);
+            if (input) input.value = sampleA[k];
+        });
+        showToast("Sample A Loaded", "Standard sample parameters populated.", "info");
+    });
+
+    document.getElementById("btnFillSampleB").addEventListener("click", function() {
+        const sampleB = { b_ph: "7.4", b_Hardness: "120.0", b_Solids: "350.0", b_Chloramines: "2.5", b_Sulfate: "180.0", b_Conductivity: "350.0", b_Organic_carbon: "1.2", b_Trihalomethanes: "35.0", b_Turbidity: "0.8" };
+        Object.keys(sampleB).forEach(k => {
+            const input = document.querySelector(`input[name='${k}']`);
+            if (input) input.value = sampleB[k];
+        });
+        showToast("Sample B Loaded", "Purified sample parameters populated.", "info");
+    });
+});
+</script>
+{% endblock %}

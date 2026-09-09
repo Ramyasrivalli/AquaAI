@@ -1,50 +1,100 @@
 /* ==========================================================================
-   AquaAI Production CSS — Consolidated Modular Stylesheet
+   AquaAI Production Design System — Ocean Blue + Cyan SaaS/AI Theme
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
-   1. Design Tokens & Root Variables
+   1. Design Tokens & CSS Variables
    -------------------------------------------------------------------------- */
 :root {
-    --primary: #1A56DB;
-    --primary-dark: #1E3A8A;
-    --primary-light: #EBF5FF;
-    --success: #059669;
-    --success-bg: #ECFDF5;
-    --danger: #DC2626;
-    --danger-bg: #FEF2F2;
-    --warning: #D97706;
-    --warning-bg: #FFFBEB;
-    --info: #0284C7;
-    --bg-light: #F8FAFC;
-    --card-bg: #FFFFFF;
-    --border-color: #E2E8F0;
-    --text-main: #0F172A;
+    --primary: #0A2540;
+    --primary-dark: #061729;
+    --primary-light: #1E3A8A;
+    --secondary: #0EA5E9;
+    --secondary-hover: #0284C7;
+    --accent: #06B6D4;
+    --accent-light: #E0F2FE;
+    
+    --bg-gradient: linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 40%, #F8FAFC 100%);
+    --card-bg: rgba(255, 255, 255, 0.95);
+    --glass-bg: rgba(255, 255, 255, 0.82);
+    --glass-border: rgba(226, 232, 240, 0.8);
+    
+    --text-dark: #0F172A;
+    --text-main: #334155;
     --text-muted: #64748B;
+    --text-light: #94A3B8;
+    
+    --success: #10B981;
+    --success-bg: #ECFDF5;
+    --success-border: #A7F3D0;
+    
+    --danger: #EF4444;
+    --danger-bg: #FEF2F2;
+    --danger-border: #FECACA;
+    
+    --warning: #F59E0B;
+    --warning-bg: #FFFBEB;
+    --warning-border: #FDE68A;
+    
+    --info: #0284C7;
+    --info-bg: #F0F9FF;
+    
+    --border-color: #E2E8F0;
+    --card-shadow: 0 10px 30px -5px rgba(14, 165, 233, 0.08), 0 4px 12px -2px rgba(10, 37, 64, 0.04);
+    --hover-shadow: 0 20px 35px -5px rgba(14, 165, 233, 0.15), 0 8px 20px -4px rgba(10, 37, 64, 0.08);
+    --radius-lg: 16px;
+    --radius-md: 12px;
+    --radius-sm: 8px;
+    --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* --------------------------------------------------------------------------
+   2. Typography & Base Layout
+   -------------------------------------------------------------------------- */
 body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background-color: var(--bg-light);
+    font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg-gradient);
+    background-attachment: fixed;
     color: var(--text-main);
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    -webkit-font-smoothing: antialiased;
 }
 
 .main-content {
     flex: 1;
-    padding-top: 2rem;
-    padding-bottom: 3rem;
+    padding-top: 1.5rem;
+    padding-bottom: 2.5rem;
+}
+
+/* Smooth Page Load Animation */
+.main-content > .container {
+    animation: fadeInUp 0.4s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* --------------------------------------------------------------------------
-   2. Navigation
+   3. Glassmorphism Sticky Navigation Bar
    -------------------------------------------------------------------------- */
 .navbar {
-    background: linear-gradient(135deg, #1E3A8A 0%, #1A56DB 100%);
-    box-shadow: 0 4px 20px rgba(26, 86, 219, 0.2);
-    padding: 0.75rem 0;
+    background: rgba(10, 37, 64, 0.92) !important;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(10, 37, 64, 0.2);
+    padding: 0.7rem 0;
+    transition: var(--transition);
 }
 
 .navbar-brand {
@@ -55,47 +105,79 @@ body {
 }
 
 .navbar-brand i {
-    font-size: 1.4rem;
+    color: var(--secondary) !important;
+    filter: drop-shadow(0 2px 8px rgba(14, 165, 233, 0.5));
 }
 
 .nav-link {
     font-weight: 600;
-    padding: 0.5rem 1rem !important;
-    border-radius: 8px;
-    color: rgba(255, 255, 255, 0.85) !important;
-    transition: all 0.2s ease;
+    font-size: 0.9rem;
+    padding: 0.45rem 0.85rem !important;
+    border-radius: var(--radius-sm);
+    color: rgba(255, 255, 255, 0.8) !important;
+    transition: var(--transition);
 }
 
 .nav-link:hover {
-    background-color: rgba(255, 255, 255, 0.15);
+    background-color: rgba(255, 255, 255, 0.12);
     color: #ffffff !important;
 }
 
 .nav-link.active {
-    background-color: rgba(255, 255, 255, 0.25) !important;
+    background: linear-gradient(135deg, var(--secondary) 0%, var(--accent) 100%) !important;
     color: #ffffff !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 14px rgba(14, 165, 233, 0.35);
 }
 
 /* --------------------------------------------------------------------------
-   3. Authentication & Tabs (No White Active Tabs)
+   4. Authentication Shell & Ambient Wave Decorations
    -------------------------------------------------------------------------- */
 .auth-wrapper {
     min-height: calc(100vh - 160px);
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 2rem 1rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.auth-wrapper::before {
+    content: '';
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(14, 165, 233, 0.15) 0%, rgba(240, 249, 255, 0) 70%);
+    top: -200px;
+    left: -200px;
+    border-radius: 50%;
+    z-index: 0;
+    pointer-events: none;
 }
 
 .auth-card {
     background: var(--card-bg);
     border: 1px solid var(--border-color);
-    border-radius: 16px;
-    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 20px 50px rgba(10, 37, 64, 0.1);
     width: 100%;
     max-width: 480px;
     overflow: hidden;
+    position: relative;
+    z-index: 1;
+    backdrop-filter: blur(10px);
+}
+
+/* Auth Header */
+.auth-header {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    color: #ffffff;
+    padding: 1.75rem 1.5rem;
+    text-align: center;
+}
+
+.auth-header i {
+    color: var(--secondary);
+    filter: drop-shadow(0 2px 10px rgba(14, 165, 233, 0.6));
 }
 
 .nav-tabs {
@@ -106,17 +188,17 @@ body {
 .nav-tabs .nav-link {
     color: var(--text-muted) !important;
     border: 1px solid transparent !important;
-    border-radius: 8px 8px 0 0 !important;
-    padding: 0.65rem 1rem !important;
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0 !important;
+    padding: 0.65rem 0.85rem !important;
     font-weight: 600 !important;
-    transition: all 0.2s ease-in-out !important;
+    transition: var(--transition) !important;
 }
 
 .nav-tabs .nav-link.active {
     background-color: var(--primary) !important;
     color: #ffffff !important;
     border-color: var(--primary) !important;
-    box-shadow: 0 4px 14px rgba(26, 86, 219, 0.3) !important;
+    box-shadow: 0 4px 14px rgba(10, 37, 64, 0.25) !important;
 }
 
 .nav-tabs .nav-link:hover:not(.active) {
@@ -124,152 +206,371 @@ body {
     color: var(--primary) !important;
 }
 
+/* Step-Indicator Pills for Reset Password */
+.step-indicator-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.step-indicator-container::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 15%;
+    right: 15%;
+    height: 2px;
+    background-color: var(--border-color);
+    z-index: 0;
+}
+
+.step-pill {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background-color: #F1F5F9;
+    color: var(--text-muted);
+    font-weight: 700;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+    border: 2px solid var(--border-color);
+    transition: var(--transition);
+}
+
+.step-pill.active {
+    background-color: var(--secondary);
+    color: #ffffff;
+    border-color: var(--secondary);
+    box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.2);
+}
+
+.step-pill.completed {
+    background-color: var(--primary);
+    color: #ffffff;
+    border-color: var(--primary);
+}
+
 /* --------------------------------------------------------------------------
-   4. Cards & Metrics
+   5. Cards & Containers
    -------------------------------------------------------------------------- */
 .card {
     background: var(--card-bg);
     border: 1px solid var(--border-color);
-    border-radius: 14px;
-    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--card-shadow);
+    transition: var(--transition);
+}
+
+.card:hover {
+    box-shadow: var(--hover-shadow);
 }
 
 .card-header {
     background-color: #FFFFFF;
     border-bottom: 1px solid var(--border-color);
     font-weight: 700;
-    padding: 1.1rem 1.35rem;
-    border-top-left-radius: 14px !important;
-    border-top-right-radius: 14px !important;
+    padding: 1rem 1.25rem;
+    border-top-left-radius: var(--radius-lg) !important;
+    border-top-right-radius: var(--radius-lg) !important;
+    color: var(--primary);
 }
 
 .metric-card {
-    background: var(--card-bg);
+    background: #FFFFFF;
     border: 1px solid var(--border-color);
-    border-radius: 14px;
-    padding: 1.5rem;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border-radius: var(--radius-md);
+    padding: 1.25rem;
+    box-shadow: var(--card-shadow);
+    transition: var(--transition);
 }
 
 .metric-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(26, 86, 219, 0.08);
+    transform: translateY(-2px);
+    box-shadow: var(--hover-shadow);
 }
 
 .metric-value {
-    font-size: 2.25rem;
+    font-size: 2.1rem;
     font-weight: 800;
     line-height: 1.1;
     color: var(--primary);
 }
 
 .metric-label {
-    font-size: 0.825rem;
+    font-size: 0.775rem;
     font-weight: 700;
     color: var(--text-muted);
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    margin-top: 0.6rem;
+    margin-top: 0.4rem;
 }
 
 /* --------------------------------------------------------------------------
-   5. Forms & Inputs
+   6. SVG Animated Circular Gauge for Water Quality Score
+   -------------------------------------------------------------------------- */
+.gauge-container {
+    position: relative;
+    width: 140px;
+    height: 140px;
+    margin: 0 auto;
+}
+
+.gauge-svg {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+}
+
+.gauge-bg {
+    fill: none;
+    stroke: #E2E8F0;
+    stroke-width: 10;
+}
+
+.gauge-fill {
+    fill: none;
+    stroke: var(--secondary);
+    stroke-width: 10;
+    stroke-linecap: round;
+    stroke-dasharray: 377;
+    stroke-dashoffset: 377;
+    transition: stroke-dashoffset 1.2s cubic-bezier(0.4, 0, 0.2, 1), stroke 0.4s ease;
+}
+
+.gauge-text-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.gauge-score-value {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--primary);
+    line-height: 1;
+}
+
+.gauge-score-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-top: 2px;
+}
+
+/* --------------------------------------------------------------------------
+   7. Form Inputs & Control Components
    -------------------------------------------------------------------------- */
 .form-control, .form-select {
     border: 1px solid #CBD5E1;
-    border-radius: 8px;
-    padding: 0.6rem 0.85rem;
-    font-size: 0.95rem;
-    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    border-radius: var(--radius-sm);
+    padding: 0.55rem 0.8rem;
+    font-size: 0.9rem;
+    transition: var(--transition);
+    color: var(--text-dark);
 }
 
 .form-control:focus, .form-select:focus {
-    border-color: var(--primary);
-    box-shadow: 0 0 0 0.25rem rgba(26, 86, 219, 0.18);
+    border-color: var(--secondary);
+    box-shadow: 0 0 0 0.25rem rgba(14, 165, 233, 0.2);
 }
 
 .form-label {
-    font-size: 0.875rem;
+    font-size: 0.825rem;
     font-weight: 600;
     color: var(--text-main);
-    margin-bottom: 0.35rem;
+    margin-bottom: 0.3rem;
+}
+
+.form-range::-webkit-slider-thumb {
+    background: var(--secondary);
+    box-shadow: 0 2px 6px rgba(14, 165, 233, 0.4);
+}
+
+.form-range::-moz-range-thumb {
+    background: var(--secondary);
 }
 
 /* --------------------------------------------------------------------------
-   6. Buttons
+   8. Buttons & Actions
    -------------------------------------------------------------------------- */
 .btn-primary {
-    background-color: var(--primary);
-    border-color: var(--primary);
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    border: none;
     font-weight: 600;
-    padding: 0.65rem 1.35rem;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(26, 86, 219, 0.2);
-    transition: all 0.2s ease;
+    border-radius: var(--radius-sm);
+    box-shadow: 0 4px 14px rgba(10, 37, 64, 0.25);
+    transition: var(--transition);
 }
 
 .btn-primary:hover {
-    background-color: var(--primary-dark);
-    border-color: var(--primary-dark);
+    background: linear-gradient(135deg, var(--primary-light) 0%, var(--secondary) 100%);
     transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(26, 86, 219, 0.3);
+    box-shadow: 0 6px 18px rgba(14, 165, 233, 0.35);
+}
+
+.btn-secondary {
+    background: #64748B;
+    border: none;
+    border-radius: var(--radius-sm);
+}
+
+.btn-outline-primary {
+    color: var(--primary);
+    border-color: var(--primary);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--primary);
+    border-color: var(--primary);
 }
 
 /* --------------------------------------------------------------------------
-   7. Tables
+   9. Status Badges & Indicators
    -------------------------------------------------------------------------- */
-.table th {
-    font-size: 0.785rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: var(--text-muted);
-    background-color: #F8FAFC;
-    border-bottom: 1px solid var(--border-color);
-    padding: 0.85rem 1rem;
-}
-
-.table td {
-    vertical-align: middle;
-    font-size: 0.9rem;
-    padding: 0.85rem 1rem;
-}
-
-.table-hover tbody tr:hover {
-    background-color: #F1F5F9;
-}
-
-/* --------------------------------------------------------------------------
-   8. Prediction & Status Badges
-   -------------------------------------------------------------------------- */
-.status-badge-safe {
+.badge-potable-safe {
     background-color: var(--success-bg);
-    border: 1px solid #A7F3D0;
+    border: 1px solid var(--success-border);
     color: var(--success);
-    padding: 1.5rem;
-    border-radius: 14px;
+    padding: 1.25rem;
+    border-radius: var(--radius-md);
     text-align: center;
 }
 
-.status-badge-unsafe {
+.badge-nonpotable-unsafe {
     background-color: var(--danger-bg);
-    border: 1px solid #FECACA;
+    border: 1px solid var(--danger-border);
     color: var(--danger);
-    padding: 1.5rem;
-    border-radius: 14px;
+    padding: 1.25rem;
+    border-radius: var(--radius-md);
     text-align: center;
+}
+
+.badge-ideal {
+    background-color: var(--success-bg);
+    color: var(--success);
+    border: 1px solid var(--success-border);
+}
+
+.badge-abnormal {
+    background-color: var(--warning-bg);
+    color: var(--warning);
+    border: 1px solid var(--warning-border);
+}
+
+.badge-unsafe {
+    background-color: var(--danger-bg);
+    color: var(--danger);
+    border: 1px solid var(--danger-border);
 }
 
 /* --------------------------------------------------------------------------
-   9. Responsive & Footer
+   10. SHAP Relative Influence Bars
+   -------------------------------------------------------------------------- */
+.shap-bar-container {
+    background-color: #F1F5F9;
+    border-radius: 999px;
+    height: 10px;
+    overflow: hidden;
+    flex-grow: 1;
+}
+
+.shap-bar-fill {
+    background: linear-gradient(90deg, var(--secondary) 0%, var(--accent) 100%);
+    height: 100%;
+    border-radius: 999px;
+    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* --------------------------------------------------------------------------
+   11. Drag & Drop CSV Upload Zone
+   -------------------------------------------------------------------------- */
+.drag-drop-zone {
+    border: 2px dashed var(--secondary);
+    background: var(--accent-light);
+    border-radius: var(--radius-lg);
+    padding: 2.5rem 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.drag-drop-zone:hover, .drag-drop-zone.dragover {
+    background: #DBEAFE;
+    border-color: var(--primary);
+    transform: scale(1.01);
+}
+
+.drag-drop-icon {
+    font-size: 2.5rem;
+    color: var(--secondary);
+    margin-bottom: 0.75rem;
+}
+
+/* --------------------------------------------------------------------------
+   12. Floating Toast Notification System
+   -------------------------------------------------------------------------- */
+.toast-container-custom {
+    position: fixed;
+    top: 1.25rem;
+    right: 1.25rem;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    max-width: 380px;
+    width: 100%;
+}
+
+.toast-custom {
+    background: #FFFFFF;
+    border-left: 4px solid var(--primary);
+    border-radius: var(--radius-sm);
+    box-shadow: 0 10px 25px rgba(10, 37, 64, 0.15);
+    padding: 0.85rem 1rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    animation: slideInRight 0.3s ease-out;
+    transition: var(--transition);
+}
+
+.toast-custom.toast-success { border-left-color: var(--success); }
+.toast-custom.toast-error { border-left-color: var(--danger); }
+.toast-custom.toast-warning { border-left-color: var(--warning); }
+.toast-custom.toast-info { border-left-color: var(--secondary); }
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* --------------------------------------------------------------------------
+   13. Footer
    -------------------------------------------------------------------------- */
 footer {
     background-color: #FFFFFF;
     border-top: 1px solid var(--border-color);
-    padding: 1.25rem 0;
+    padding: 1rem 0;
     color: var(--text-muted);
-    font-size: 0.875rem;
+    font-size: 0.85rem;
     margin-top: auto;
 }

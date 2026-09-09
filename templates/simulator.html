@@ -1,0 +1,260 @@
+{% extends "base.html" %}
+
+{% block title %}What-If Simulator — AquaAI Platform{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h3 class="fw-bold mb-1"><i class="fa-solid fa-sliders text-primary me-2"></i>What-If Parameter Simulator</h3>
+        <p class="text-muted small mb-0">Adjust water parameters interactively using sliders to simulate treatment outcomes in real time.</p>
+    </div>
+    <button type="button" class="btn btn-outline-secondary btn-sm" id="btnResetSimulator">
+        <i class="fa-solid fa-rotate-left me-1"></i> Reset Standard Values
+    </button>
+</div>
+
+<!-- Main One-Screen Grid -->
+<div class="row g-3">
+    <!-- Left Column: Sliders -->
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header bg-white fw-bold py-2">
+                <i class="fa-solid fa-sliders text-primary me-2"></i>Interactive Parameter Sliders
+            </div>
+            <div class="card-body p-3">
+                <form id="simulatorForm">
+                    <!-- pH -->
+                    <div class="mb-2">
+                        <div class="d-flex justify-content-between small fw-bold mb-1">
+                            <label for="sim_ph">pH Level</label>
+                            <span class="text-primary" id="val_ph">7.20</span>
+                        </div>
+                        <input type="range" class="form-range sim-slider" id="sim_ph" name="ph" min="0" max="14" step="0.1" value="7.2">
+                    </div>
+
+                    <!-- Hardness -->
+                    <div class="mb-2">
+                        <div class="d-flex justify-content-between small fw-bold mb-1">
+                            <label for="sim_Hardness">Hardness (mg/L)</label>
+                            <span class="text-primary" id="val_Hardness">196.3</span>
+                        </div>
+                        <input type="range" class="form-range sim-slider" id="sim_Hardness" name="Hardness" min="0" max="800" step="1" value="196.3">
+                    </div>
+
+                    <!-- Solids (TDS) -->
+                    <div class="mb-2">
+                        <div class="d-flex justify-content-between small fw-bold mb-1">
+                            <label for="sim_Solids">Total Dissolved Solids (ppm)</label>
+                            <span class="text-primary" id="val_Solids">14200</span>
+                        </div>
+                        <input type="range" class="form-range sim-slider" id="sim_Solids" name="Solids" min="0" max="50000" step="100" value="14200">
+                    </div>
+
+                    <!-- Chloramines -->
+                    <div class="mb-2">
+                        <div class="d-flex justify-content-between small fw-bold mb-1">
+                            <label for="sim_Chloramines">Chloramines (ppm)</label>
+                            <span class="text-primary" id="val_Chloramines">7.13</span>
+                        </div>
+                        <input type="range" class="form-range sim-slider" id="sim_Chloramines" name="Chloramines" min="0" max="15" step="0.1" value="7.13">
+                    </div>
+
+                    <!-- Sulfate -->
+                    <div class="mb-2">
+                        <div class="d-flex justify-content-between small fw-bold mb-1">
+                            <label for="sim_Sulfate">Sulfate (mg/L)</label>
+                            <span class="text-primary" id="val_Sulfate">333</span>
+                        </div>
+                        <input type="range" class="form-range sim-slider" id="sim_Sulfate" name="Sulfate" min="0" max="600" step="1" value="333">
+                    </div>
+
+                    <!-- Conductivity -->
+                    <div class="mb-2">
+                        <div class="d-flex justify-content-between small fw-bold mb-1">
+                            <label for="sim_Conductivity">Conductivity (μS/cm)</label>
+                            <span class="text-primary" id="val_Conductivity">421</span>
+                        </div>
+                        <input type="range" class="form-range sim-slider" id="sim_Conductivity" name="Conductivity" min="0" max="1500" step="5" value="421">
+                    </div>
+
+                    <!-- Organic Carbon -->
+                    <div class="mb-2">
+                        <div class="d-flex justify-content-between small fw-bold mb-1">
+                            <label for="sim_Organic_carbon">Organic Carbon (ppm)</label>
+                            <span class="text-primary" id="val_Organic_carbon">14.1</span>
+                        </div>
+                        <input type="range" class="form-range sim-slider" id="sim_Organic_carbon" name="Organic_carbon" min="0" max="30" step="0.1" value="14.1">
+                    </div>
+
+                    <!-- Trihalomethanes -->
+                    <div class="mb-2">
+                        <div class="d-flex justify-content-between small fw-bold mb-1">
+                            <label for="sim_Trihalomethanes">Trihalomethanes (μg/L)</label>
+                            <span class="text-primary" id="val_Trihalomethanes">66.3</span>
+                        </div>
+                        <input type="range" class="form-range sim-slider" id="sim_Trihalomethanes" name="Trihalomethanes" min="0" max="200" step="1" value="66.3">
+                    </div>
+
+                    <!-- Turbidity -->
+                    <div class="mb-2">
+                        <div class="d-flex justify-content-between small fw-bold mb-1">
+                            <label for="sim_Turbidity">Turbidity (NTU)</label>
+                            <span class="text-primary" id="val_Turbidity">3.96</span>
+                        </div>
+                        <input type="range" class="form-range sim-slider" id="sim_Turbidity" name="Turbidity" min="0" max="15" step="0.1" value="3.96">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Real-Time Results -->
+    <div class="col-lg-6">
+        <div class="card h-100 border-primary">
+            <div class="card-header bg-white fw-bold py-2 text-primary d-flex justify-content-between align-items-center">
+                <span><i class="fa-solid fa-chart-bar me-2"></i>Simulated ML Verdict & Score</span>
+                <span class="badge bg-light text-muted border">Live ML Pipeline</span>
+            </div>
+            <div class="card-body p-3">
+                <div class="row g-2 mb-3 text-center">
+                    <div class="col-6">
+                        <div id="simVerdictBadge" class="badge-potable-safe py-3 h-100 d-flex flex-column justify-content-center">
+                            <h4 class="fw-bold mb-0" id="simVerdictText">SAFE</h4>
+                            <span class="small" id="simVerdictSub">Potable Water</span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="metric-card py-2 h-100 d-flex flex-column justify-content-center">
+                            <div class="metric-value fs-2" id="simScoreValue">82.5</div>
+                            <div class="metric-label small mt-1" id="simScoreStatus">Good Quality</div>
+                        </div>
+                    </div>
+                </div>
+
+                <h6 class="fw-bold small text-muted mb-2">Simulated Parameter Deviations</h6>
+                <div class="table-responsive mb-3" style="max-height: 220px; overflow-y: auto;">
+                    <table class="table table-sm align-middle mb-0">
+                        <thead>
+                            <tr class="small">
+                                <th>Parameter</th>
+                                <th>Simulated Value</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="simTableBody">
+                            <!-- Populated via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <h6 class="fw-bold small text-muted mb-1">Dynamic Treatment Recommendation</h6>
+                <div class="card bg-light border-0 p-2 small">
+                    <ul class="mb-0 ps-3" id="simRecList">
+                        <li>Simulated parameter values meet WHO drinking guidelines.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const sliders = document.querySelectorAll(".sim-slider");
+    
+    function runSimulation() {
+        const payload = {};
+        sliders.forEach(slider => {
+            const name = slider.name;
+            const val = parseFloat(slider.value);
+            payload[name] = val;
+            const valDisplay = document.getElementById("val_" + name);
+            if (valDisplay) valDisplay.textContent = val;
+        });
+
+        fetch("{{ url_for('simulate_api') }}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Update Verdict
+            const badge = document.getElementById("simVerdictBadge");
+            const vText = document.getElementById("simVerdictText");
+            const vSub = document.getElementById("simVerdictSub");
+            
+            if (data.is_potable) {
+                badge.className = "badge-potable-safe py-3 h-100 d-flex flex-column justify-content-center";
+                vText.textContent = "SAFE";
+                vSub.textContent = "Potable Water (" + data.confidence_pct + "% conf)";
+            } else {
+                badge.className = "badge-nonpotable-unsafe py-3 h-100 d-flex flex-column justify-content-center";
+                vText.textContent = "UNSAFE";
+                vSub.textContent = "Non-Potable (" + data.confidence_pct + "% conf)";
+            }
+
+            // Update Score
+            document.getElementById("simScoreValue").textContent = data.quality_score;
+            document.getElementById("simScoreStatus").textContent = data.quality_status + " Quality";
+
+            // Update Table
+            const tbody = document.getElementById("simTableBody");
+            tbody.innerHTML = "";
+            data.parameter_evaluations.forEach(ev => {
+                const tr = document.createElement("tr");
+                let badgeClass = "badge-ideal";
+                if (ev.status.includes("Abnormal")) badgeClass = "badge-abnormal";
+                if (ev.status.includes("Unsafe")) badgeClass = "badge-unsafe";
+
+                tr.innerHTML = `
+                    <td class="fw-bold">${ev.label}</td>
+                    <td>${ev.value} ${ev.unit}</td>
+                    <td><span class="badge ${badgeClass}">${ev.status}</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // Update Recommendations
+            const recList = document.getElementById("simRecList");
+            recList.innerHTML = "";
+            data.recommendations.forEach(rec => {
+                const li = document.createElement("li");
+                li.textContent = rec;
+                recList.appendChild(li);
+            });
+        })
+        .catch(err => console.error("Simulation error:", err));
+    }
+
+    sliders.forEach(slider => {
+        slider.addEventListener("input", runSimulation);
+    });
+
+    document.getElementById("btnResetSimulator").addEventListener("click", function() {
+        const defaults = {
+            sim_ph: 7.20,
+            sim_Hardness: 196.3,
+            sim_Solids: 14200,
+            sim_Chloramines: 7.13,
+            sim_Sulfate: 333,
+            sim_Conductivity: 421,
+            sim_Organic_carbon: 14.1,
+            sim_Trihalomethanes: 66.3,
+            sim_Turbidity: 3.96
+        };
+        Object.keys(defaults).forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.value = defaults[id];
+        });
+        runSimulation();
+    });
+
+    runSimulation();
+});
+</script>
+{% endblock %}

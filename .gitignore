@@ -1,73 +1,34 @@
-# Byte-compiled / optimized / DLL files
+# Python bytecode & cache
 __pycache__/
 *.py[cod]
 *$py.class
-*.so
-
-# C extensions
-*.so
-
-# Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# PyInstaller
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.py.cover
-.hypothesis/
 .pytest_cache/
-pytestdebug.txt
+.coverage
+htmlcov/
+.nox/
+.hypothesis/
 
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# Virtual Environments
+# Virtual environments
 .venv/
 venv/
-ENV/
 env/
+ENV/
 
-# IDE & Editor caches
+# Environment secrets
+.env
+.env.local
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# PDF Reports
+static/reports/*
+!static/reports/.gitkeep
+
+# IDEs & OS generated files
 .vscode/
 .idea/
-*.swp
-*.swo
-*~
 .DS_Store
-
-# Application database & generated reports
-water_quality.db
-static/reports/*.pdf
-logs/
-*.log
+Thumbs.db

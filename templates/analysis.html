@@ -1,0 +1,381 @@
+{% extends "base.html" %}
+
+{% block title %}Water Quality Analysis — AquaAI Platform{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3 gap-3">
+    <div>
+        <h3 class="fw-bold mb-1"><i class="fa-solid fa-vial text-primary me-2"></i>Water Quality Analysis</h3>
+        <p class="text-muted small mb-0">Enter measured laboratory water quality parameters. Run ML inference to evaluate potability, compute Water Quality Score, and inspect SHAP feature explanations.</p>
+    </div>
+    <div class="d-flex gap-2">
+        {% if result %}
+        <a href="{{ url_for('analysis', new=1) }}" class="btn btn-outline-primary btn-sm shadow-sm">
+            <i class="fa-solid fa-plus me-1"></i> New Analysis
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Compact 2-4 Column Input Form Card -->
+<div class="card mb-4">
+    <div class="card-header bg-white fw-bold d-flex justify-content-between align-items-center py-2">
+        <span><i class="fa-solid fa-sliders me-2 text-primary"></i>Water Parameter Input Form</span>
+        <div class="btn-group btn-group-sm">
+            {% if result %}
+            <button type="button" class="btn btn-outline-primary" id="btnToggleEditInputs">
+                <i class="fa-solid fa-pen-to-square me-1"></i> Edit Inputs / Re-run
+            </button>
+            <a href="{{ url_for('analysis', new=1) }}" class="btn btn-outline-secondary">
+                <i class="fa-solid fa-plus me-1"></i> New Analysis
+            </a>
+            {% else %}
+            <button type="button" class="btn btn-outline-info" id="btnLoadSample" title="Populate standard sample data">
+                <i class="fa-solid fa-flask me-1"></i> Load Sample Data
+            </button>
+            <button type="button" class="btn btn-outline-secondary" id="btnClearForm" title="Clear all fields">
+                <i class="fa-solid fa-eraser me-1"></i> Clear Form
+            </button>
+            {% endif %}
+        </div>
+    </div>
+    <div class="card-body p-3 {% if result %}d-none{% endif %}" id="inputFormContainer">
+        <form action="{{ url_for('analysis') }}" method="POST" id="waterAnalysisForm" novalidate>
+            <div class="row g-3">
+                <!-- 1. pH -->
+                <div class="col-6 col-md-4 col-lg-3">
+                    <label for="ph" class="form-label d-flex justify-content-between">
+                        <span>pH Level</span>
+                        <span class="text-muted small">0–14</span>
+                    </label>
+                    <div class="input-group input-group-sm">
+                        <input type="number" class="form-control" id="ph" name="ph" step="any" min="0" max="14" placeholder="7.20" value="{{ form_values.ph if form_values and form_values.ph is not none else '' }}" required>
+                        <span class="input-group-text">pH</span>
+                    </div>
+                    <div class="form-text small text-muted">Target: 6.5 – 8.5</div>
+                </div>
+
+                <!-- 2. Hardness -->
+                <div class="col-6 col-md-4 col-lg-3">
+                    <label for="Hardness" class="form-label d-flex justify-content-between">
+                        <span>Hardness</span>
+                        <span class="text-muted small">mg/L</span>
+                    </label>
+                    <div class="input-group input-group-sm">
+                        <input type="number" class="form-control" id="Hardness" name="Hardness" step="any" min="0" max="1000" placeholder="196.3" value="{{ form_values.Hardness if form_values and form_values.Hardness is not none else '' }}" required>
+                        <span class="input-group-text">mg/L</span>
+                    </div>
+                    <div class="form-text small text-muted">Desirable < 200</div>
+                </div>
+
+                <!-- 3. Solids / TDS -->
+                <div class="col-6 col-md-4 col-lg-3">
+                    <label for="Solids" class="form-label d-flex justify-content-between">
+                        <span>Solids (TDS)</span>
+                        <span class="text-muted small">ppm</span>
+                    </label>
+                    <div class="input-group input-group-sm">
+                        <input type="number" class="form-control" id="Solids" name="Solids" step="any" min="0" max="100000" placeholder="14200.0" value="{{ form_values.Solids if form_values and form_values.Solids is not none else '' }}" required>
+                        <span class="input-group-text">ppm</span>
+                    </div>
+                    <div class="form-text small text-muted">WHO ideal < 500</div>
+                </div>
+
+                <!-- 4. Chloramines -->
+                <div class="col-6 col-md-4 col-lg-3">
+                    <label for="Chloramines" class="form-label d-flex justify-content-between">
+                        <span>Chloramines</span>
+                        <span class="text-muted small">ppm</span>
+                    </label>
+                    <div class="input-group input-group-sm">
+                        <input type="number" class="form-control" id="Chloramines" name="Chloramines" step="any" min="0" max="20" placeholder="7.13" value="{{ form_values.Chloramines if form_values and form_values.Chloramines is not none else '' }}" required>
+                        <span class="input-group-text">ppm</span>
+                    </div>
+                    <div class="form-text small text-muted">EPA limit <= 4.0</div>
+                </div>
+
+                <!-- 5. Sulfate -->
+                <div class="col-6 col-md-4 col-lg-3">
+                    <label for="Sulfate" class="form-label d-flex justify-content-between">
+                        <span>Sulfate</span>
+                        <span class="text-muted small">mg/L</span>
+                    </label>
+                    <div class="input-group input-group-sm">
+                        <input type="number" class="form-control" id="Sulfate" name="Sulfate" step="any" min="0" max="1000" placeholder="333.0" value="{{ form_values.Sulfate if form_values and form_values.Sulfate is not none else '' }}" required>
+                        <span class="input-group-text">mg/L</span>
+                    </div>
+                    <div class="form-text small text-muted">WHO guideline <= 250</div>
+                </div>
+
+                <!-- 6. Conductivity -->
+                <div class="col-6 col-md-4 col-lg-3">
+                    <label for="Conductivity" class="form-label d-flex justify-content-between">
+                        <span>Conductivity</span>
+                        <span class="text-muted small">μS/cm</span>
+                    </label>
+                    <div class="input-group input-group-sm">
+                        <input type="number" class="form-control" id="Conductivity" name="Conductivity" step="any" min="0" max="3000" placeholder="421.0" value="{{ form_values.Conductivity if form_values and form_values.Conductivity is not none else '' }}" required>
+                        <span class="input-group-text">μS/cm</span>
+                    </div>
+                    <div class="form-text small text-muted">Ref: 200–800</div>
+                </div>
+
+                <!-- 7. Organic Carbon -->
+                <div class="col-6 col-md-4 col-lg-3">
+                    <label for="Organic_carbon" class="form-label d-flex justify-content-between">
+                        <span>Organic Carbon</span>
+                        <span class="text-muted small">ppm</span>
+                    </label>
+                    <div class="input-group input-group-sm">
+                        <input type="number" class="form-control" id="Organic_carbon" name="Organic_carbon" step="any" min="0" max="50" placeholder="14.1" value="{{ form_values.Organic_carbon if form_values and form_values.Organic_carbon is not none else '' }}" required>
+                        <span class="input-group-text">ppm</span>
+                    </div>
+                    <div class="form-text small text-muted">Desirable < 2.0</div>
+                </div>
+
+                <!-- 8. Trihalomethanes -->
+                <div class="col-6 col-md-4 col-lg-3">
+                    <label for="Trihalomethanes" class="form-label d-flex justify-content-between">
+                        <span>Trihalomethanes</span>
+                        <span class="text-muted small">μg/L</span>
+                    </label>
+                    <div class="input-group input-group-sm">
+                        <input type="number" class="form-control" id="Trihalomethanes" name="Trihalomethanes" step="any" min="0" max="300" placeholder="66.3" value="{{ form_values.Trihalomethanes if form_values and form_values.Trihalomethanes is not none else '' }}" required>
+                        <span class="input-group-text">μg/L</span>
+                    </div>
+                    <div class="form-text small text-muted">EPA limit <= 80</div>
+                </div>
+
+                <!-- 9. Turbidity -->
+                <div class="col-6 col-md-4 col-lg-3">
+                    <label for="Turbidity" class="form-label d-flex justify-content-between">
+                        <span>Turbidity</span>
+                        <span class="text-muted small">NTU</span>
+                    </label>
+                    <div class="input-group input-group-sm">
+                        <input type="number" class="form-control" id="Turbidity" name="Turbidity" step="any" min="0" max="20" placeholder="3.96" value="{{ form_values.Turbidity if form_values and form_values.Turbidity is not none else '' }}" required>
+                        <span class="input-group-text">NTU</span>
+                    </div>
+                    <div class="form-text small text-muted">WHO ideal < 1.0</div>
+                </div>
+            </div>
+
+            <div class="mt-3 d-flex flex-wrap justify-content-between align-items-center gap-2 border-top pt-3">
+                <span class="text-muted small"><span class="text-danger">*</span> Numerical parameters evaluated against WHO/EPA safety guidelines</span>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" id="btnClearForm">
+                        <i class="fa-solid fa-eraser me-1"></i> Clear Form
+                    </button>
+                    <button type="submit" class="btn btn-primary btn-sm px-4 shadow-sm" id="btnRunAnalysis">
+                        <i class="fa-solid fa-microscope me-1"></i> {% if result %}Analyze Again{% else %}Analyze Water Quality{% endif %}
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Analysis Results Display -->
+{% if result %}
+<div class="card mb-4 border-primary shadow-sm" id="resultsSection">
+    <div class="card-header bg-white fw-bold text-primary d-flex justify-content-between align-items-center py-2">
+        <span><i class="fa-solid fa-square-poll-vertical me-2"></i>Analysis Results & Diagnostic Intelligence</span>
+        {% if record_id %}
+        <span class="badge bg-light text-dark border">Record ID: #{{ record_id }}</span>
+        {% endif %}
+    </div>
+    <div class="card-body p-4">
+        <div class="row g-3 mb-4">
+            <!-- Verdict Status Banner -->
+            <div class="col-md-4">
+                {% if result.is_potable %}
+                <div class="badge-potable-safe h-100 d-flex flex-column justify-content-center">
+                    <h4 class="fw-bold mb-1"><i class="fa-solid fa-circle-check me-2"></i>SAFE / POTABLE</h4>
+                    <p class="mb-0 small fw-bold">ML Prediction: Safe for Human Consumption</p>
+                </div>
+                {% else %}
+                <div class="badge-nonpotable-unsafe h-100 d-flex flex-column justify-content-center">
+                    <h4 class="fw-bold mb-1"><i class="fa-solid fa-triangle-exclamation me-2"></i>UNSAFE / NON-POTABLE</h4>
+                    <p class="mb-0 small fw-bold">ML Prediction: Treatment Required Before Consumption</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- SVG Animated Circular WQS Gauge -->
+            <div class="col-md-4">
+                <div class="metric-card text-center h-100 d-flex flex-column justify-content-center">
+                    <div class="gauge-container">
+                        <svg class="gauge-svg" viewBox="0 0 140 140">
+                            <circle class="gauge-bg" cx="70" cy="70" r="60"></circle>
+                            <circle class="gauge-fill" cx="70" cy="70" r="60"></circle>
+                        </svg>
+                        <div class="gauge-text-container">
+                            <div class="gauge-score-value" id="gaugeScoreValue">0.0</div>
+                            <div class="gauge-score-label">Score</div>
+                        </div>
+                    </div>
+                    <div class="small fw-bold text-muted mt-2">Quality Status: <strong>{{ result.quality_status }}</strong></div>
+                </div>
+            </div>
+
+            <!-- ML Prediction Confidence Card -->
+            <div class="col-md-4">
+                <div class="metric-card text-center h-100 d-flex flex-column justify-content-center">
+                    <div class="metric-value text-primary">{{ result.confidence_pct }}%</div>
+                    <div class="metric-label">Prediction Confidence ({{ result.model_used }})</div>
+                    <div class="small text-muted mt-1">Probabilities: Potable {{ result.confidence_pct if result.is_potable else (100 - result.confidence_pct)|round(1) }}% | Unsafe {{ (100 - result.confidence_pct)|round(1) if result.is_potable else result.confidence_pct }}%</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Diagnostic Tabs Navigation -->
+        <ul class="nav nav-tabs fw-bold mb-3" id="resultTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="diag-tab" data-bs-toggle="tab" data-bs-target="#diag" type="button" role="tab">
+                    <i class="fa-solid fa-table me-1"></i> Parameter Diagnostics
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="xai-tab" data-bs-toggle="tab" data-bs-target="#xai" type="button" role="tab">
+                    <i class="fa-solid fa-brain me-1"></i> Explainable AI (SHAP Drivers)
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="rec-tab" data-bs-toggle="tab" data-bs-target="#rec" type="button" role="tab">
+                    <i class="fa-solid fa-lightbulb me-1"></i> Treatment Recommendations
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="uses-tab" data-bs-toggle="tab" data-bs-target="#uses" type="button" role="tab">
+                    <i class="fa-solid fa-seedling me-1"></i> Suitable Applications
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content p-3 border rounded bg-white" id="resultTabsContent">
+            <!-- 1. Diagnostics Table -->
+            <div class="tab-pane fade show active" id="diag" role="tabpanel">
+                <div class="table-responsive">
+                    <table class="table table-striped align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Parameter</th>
+                                <th>Measured Value</th>
+                                <th>WHO / EPA Standard</th>
+                                <th>Status</th>
+                                <th>Diagnostic Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for ev in result.parameter_evaluations %}
+                            <tr>
+                                <td class="fw-bold">{{ ev.label }}</td>
+                                <td>{{ ev.value }} {{ ev.unit }}</td>
+                                <td class="text-muted small">{{ ev.reference }}</td>
+                                <td>
+                                    <span class="badge {% if ev.status == 'Ideal' %}badge-ideal{% elif 'Abnormal' in ev.status %}badge-abnormal{% else %}badge-unsafe{% endif %}">
+                                        {{ ev.status }}
+                                    </span>
+                                </td>
+                                <td class="small">{{ ev.recommendation }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 2. SHAP Explainable AI Attributions -->
+            <div class="tab-pane fade" id="xai" role="tabpanel">
+                <div class="row align-items-center">
+                    <div class="col-lg-7">
+                        <h6 class="fw-bold mb-2 text-primary">Top Factors Influencing Model Verdict</h6>
+                        <p class="text-muted small">SHAP feature attribution analysis quantifies the relative influence of each water parameter on the ML prediction.</p>
+                        <div class="table-responsive">
+                            <table class="table table-sm align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Rank</th>
+                                        <th>Parameter</th>
+                                        <th>Value</th>
+                                        <th>Influence Impact</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for exp in result.feature_explanations %}
+                                    <tr>
+                                        <td class="fw-bold text-muted">#{{ loop.index }}</td>
+                                        <td class="fw-bold">{{ exp.label }}</td>
+                                        <td>{{ exp.value }}</td>
+                                        <td>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <div class="shap-bar-container">
+                                                    <div class="shap-bar-fill" style="width: {{ exp.impact_pct }}%;"></div>
+                                                </div>
+                                                <span class="small fw-bold">{{ exp.impact_pct }}%</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-lg-5">
+                        <div class="card bg-light border-0 p-3 mt-3 mt-lg-0">
+                            <h6 class="fw-bold text-dark"><i class="fa-solid fa-circle-info text-info me-2"></i>Why this prediction?</h6>
+                            <p class="small text-muted mb-2">The ML model evaluates multi-parameter non-linear interactions. The top 3 influential drivers for this sample are:</p>
+                            <ol class="small fw-bold text-primary mb-0 ps-3">
+                                {% for exp in result.feature_explanations[:3] %}
+                                <li>{{ exp.label }} ({{ exp.value }}) — {{ exp.impact_pct }}% relative influence</li>
+                                {% endfor %}
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Dynamic Recommendations -->
+            <div class="tab-pane fade" id="rec" role="tabpanel">
+                <ul class="list-group list-group-flush">
+                    {% for item in result.recommendations %}
+                    <li class="list-group-item"><i class="fa-solid fa-check-double text-primary me-2"></i>{{ item }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <!-- 4. Recommended Uses -->
+            <div class="tab-pane fade" id="uses" role="tabpanel">
+                <ul class="list-group list-group-flush">
+                    {% for item in result.suitable_uses %}
+                    <li class="list-group-item"><i class="fa-solid fa-droplet text-info me-2"></i>{{ item }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        {% if record_id %}
+        <div class="mt-4 d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <a href="{{ url_for('analysis', new=1) }}" class="btn btn-outline-secondary btn-sm">
+                <i class="fa-solid fa-plus me-1"></i> Start New Analysis
+            </a>
+            <a href="{{ url_for('get_report', prediction_id=record_id) }}" class="btn btn-danger btn-sm shadow-sm">
+                <i class="fa-solid fa-file-pdf me-1"></i> Download Official PDF Report
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{% if result %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // Trigger gauge animation for score
+    animateWqsGauge({{ result.quality_score }});
+});
+</script>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block title %}Batch CSV Predictions — AquaAI Platform{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1"><i class="fa-solid fa-file-csv text-primary me-2"></i>Batch CSV Potability Predictions</h3>
+        <p class="text-muted small mb-0">Upload a CSV file containing water sample records for batch ML inference, quality scoring, and CSV export.</p>
+    </div>
+</div>
+
+<!-- Drag and Drop CSV Upload Card -->
+<div class="card mb-4">
+    <div class="card-header bg-white fw-bold py-2">
+        <i class="fa-solid fa-cloud-arrow-up me-2 text-primary"></i>Upload Water Quality CSV Dataset
+    </div>
+    <div class="card-body p-4">
+        <form action="{{ url_for('batch') }}" method="POST" enctype="multipart/form-data" id="batchUploadForm">
+            
+            <div class="drag-drop-zone mb-3" id="dropZone">
+                <i class="fa-solid fa-file-csv drag-drop-icon"></i>
+                <h5 class="fw-bold mb-1">Drag & Drop CSV File Here</h5>
+                <p class="text-muted small mb-2">or click to browse local files</p>
+                <div class="badge bg-light text-primary border" id="selectedFileName">Supported: .csv files</div>
+                <input type="file" id="csv_file" name="csv_file" accept=".csv" class="d-none" required>
+            </div>
+
+            <div class="alert alert-info py-2 px-3 small border-0 mb-3">
+                <i class="fa-solid fa-circle-info me-2 text-info"></i>
+                Required CSV headers: <code>ph, Hardness, Solids, Chloramines, Sulfate, Conductivity, Organic_carbon, Trihalomethanes, Turbidity</code>
+            </div>
+
+            <button type="submit" class="btn btn-primary px-4 shadow-sm" id="btnProcessBatch">
+                <i class="fa-solid fa-gears me-1"></i> Process Batch CSV
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Results Display -->
+{% if batch_summary %}
+<div class="card mb-4 border-primary shadow-sm">
+    <div class="card-header bg-white fw-bold text-primary d-flex justify-content-between align-items-center py-2">
+        <span><i class="fa-solid fa-list-check me-2"></i>Batch Processing Results Summary</span>
+        <a href="{{ url_for('batch_export') }}" class="btn btn-sm btn-success shadow-sm">
+            <i class="fa-solid fa-download me-1"></i> Download Processed Results CSV
+        </a>
+    </div>
+    <div class="card-body p-4">
+        <!-- Summary Cards -->
+        <div class="row g-3 mb-4 text-center">
+            <div class="col-6 col-md-3">
+                <div class="metric-card">
+                    <div class="metric-value">{{ batch_summary.total_rows }}</div>
+                    <div class="metric-label">Total Rows Processed</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="metric-card">
+                    <div class="metric-value text-success">{{ batch_summary.safe_count }}</div>
+                    <div class="metric-label">Safe / Potable Samples</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="metric-card">
+                    <div class="metric-value text-danger">{{ batch_summary.unsafe_count }}</div>
+                    <div class="metric-label">Unsafe Samples</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="metric-card">
+                    <div class="metric-value text-warning">{{ batch_summary.avg_score }}</div>
+                    <div class="metric-label">Avg Quality Score</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table Preview -->
+        <h6 class="fw-bold mb-3 text-secondary">Processed Records Preview (Top 50 Rows)</h6>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>pH</th>
+                        <th>Hardness</th>
+                        <th>TDS (Solids)</th>
+                        <th>Turbidity</th>
+                        <th>ML Verdict</th>
+                        <th>Quality Score</th>
+                        <th>Confidence</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in batch_records[:50] %}
+                    <tr>
+                        <td class="fw-bold text-muted">{{ loop.index }}</td>
+                        <td>{{ "%.2f"|format(row.ph) if row.ph is not none else "N/A" }}</td>
+                        <td>{{ "%.1f"|format(row.Hardness) if row.Hardness is not none else "N/A" }}</td>
+                        <td>{{ "%.0f"|format(row.Solids) if row.Solids is not none else "N/A" }}</td>
+                        <td>{{ "%.2f"|format(row.Turbidity) if row.Turbidity is not none else "N/A" }}</td>
+                        <td>
+                            {% if row.predicted_potability == 1 %}
+                                <span class="badge badge-ideal"><i class="fa-solid fa-circle-check me-1"></i> Safe</span>
+                            {% else %}
+                                <span class="badge badge-unsafe"><i class="fa-solid fa-triangle-exclamation me-1"></i> Unsafe</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="fw-bold">{{ row.quality_score }}</span>
+                            <span class="badge bg-light text-dark border">{{ row.quality_status }}</span>
+                        </td>
+                        <td>{{ "%.1f"|format(row.confidence_pct) }}%</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

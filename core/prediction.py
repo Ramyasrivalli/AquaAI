@@ -9,6 +9,8 @@ import numpy as np
 import pandas as pd
 from typing import Any, Dict, List, Optional, Tuple
 
+from core.database import save_prediction
+from core.explainability import compute_feature_explanations
 from core.helpers import (
     FEATURE_COLS,
     FEATURE_LABELS,
@@ -19,7 +21,6 @@ from core.helpers import (
     SCALER_PATH,
     WHO_STANDARDS,
 )
-from core.database import save_prediction
 
 # Module-level memory cache for loaded ML artifacts
 _MODEL = None
@@ -89,6 +90,7 @@ class AnalysisResult:
     recommendations: List[str]
     suitable_uses: List[str]
     model_used: str
+    feature_explanations: List[dict]
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -284,9 +286,11 @@ def evaluate_parameters(features: Dict[str, Any]) -> Tuple[List[dict], List[str]
 
     evaluations.append(ParameterEval("Turbidity", "Turbidity", turb, "NTU", "< 1.0 NTU", turb_status, turb_rec).to_dict())
 
-    # Suitable uses deduction
     if len(recommendations) == 0:
         recommendations.append("Water parameters meet WHO standards. Maintain routine monitoring.")
+
+    # Always append standard lab decision support disclaimer
+    recommendations.append("Notice: AquaAI provides machine learning decision support and does not replace certified laboratory testing.")
 
     # Suitable applications determination
     if ph >= 6.5 and ph <= 8.5 and tds <= 500 and turb <= 1.0 and thm <= 80:
@@ -354,6 +358,7 @@ def run_inference(
     conf_pct = round(conf * 100.0, 1)
     quality_score, quality_status = compute_water_quality_score(clean_dict)
     evaluations, recommendations, suitable_uses = evaluate_parameters(clean_dict)
+    feature_explanations = compute_feature_explanations(_MODEL, _SCALER, _IMPUTER, clean_dict)
 
     result_obj = AnalysisResult(
         is_potable=bool(pred_class == 1),
@@ -365,6 +370,7 @@ def run_inference(
         recommendations=recommendations,
         suitable_uses=suitable_uses,
         model_used=_MODEL_NAME,
+        feature_explanations=feature_explanations,
     )
 
     record_id = None

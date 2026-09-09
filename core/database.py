@@ -34,11 +34,13 @@ def get_db_cursor() -> Generator[sqlite3.Cursor, None, None]:
 def init_db() -> None:
     """Initialize SQLite database schema and perform safe column migrations."""
     with get_db_cursor() as cur:
+        # Users Table
         cur.execute(
             """
             CREATE TABLE IF NOT EXISTS users (
                 id                     INTEGER PRIMARY KEY AUTOINCREMENT,
                 username               TEXT UNIQUE NOT NULL,
+                email                  TEXT UNIQUE,
                 password_hash          TEXT NOT NULL,
                 security_question      TEXT,
                 security_answer_hash   TEXT,
@@ -46,6 +48,8 @@ def init_db() -> None:
             )
             """
         )
+
+        # Predictions Table
         cur.execute(
             """
             CREATE TABLE IF NOT EXISTS predictions (
@@ -71,8 +75,11 @@ def init_db() -> None:
             """
         )
 
+        # Safe Column Migrations for users table
         cur.execute("PRAGMA table_info(users)")
         columns = [column[1] for column in cur.fetchall()]
+        if "email" not in columns:
+            cur.execute("ALTER TABLE users ADD COLUMN email TEXT")
         if "security_question" not in columns:
             cur.execute("ALTER TABLE users ADD COLUMN security_question TEXT")
         if "security_answer_hash" not in columns:
@@ -120,8 +127,8 @@ def save_prediction(
         return cur.lastrowid
 
 
-def get_user_predictions(user_id: int, limit: int = 200) -> List[Dict[str, Any]]:
-    """Fetch user prediction records."""
+def get_user_predictions(user_id: int, limit: int = 500) -> List[Dict[str, Any]]:
+    """Fetch user prediction records isolated strictly by user_id."""
     init_db()
     with get_db_cursor() as cur:
         cur.execute(

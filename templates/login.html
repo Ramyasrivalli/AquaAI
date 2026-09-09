@@ -1,18 +1,18 @@
 {% extends "base.html" %}
 
-{% block title %}Login — AquaAI Water Intelligence{% endblock %}
+{% block title %}Log In & Authentication — AquaAI Platform{% endblock %}
 
 {% block content %}
-<div class="auth-wrapper">
+<div class="auth-wrapper py-4">
     <div class="auth-card">
-        <!-- Header Branding -->
-        <div class="text-center p-4 bg-light border-bottom">
-            <i class="fa-solid fa-droplet text-primary display-5 mb-2"></i>
+        <!-- Auth Header with Ambient Branding -->
+        <div class="auth-header text-center">
+            <i class="fa-solid fa-droplet display-4 mb-2"></i>
             <h3 class="fw-bold mb-1">AquaAI Intelligence</h3>
-            <p class="text-muted small mb-0">Drinking Water Safety & Quality Monitoring</p>
+            <p class="small text-light opacity-75 mb-0">Drinking Water Quality & Safety Assessment Platform</p>
         </div>
 
-        <!-- Auth Tabs Header (Colored Active Tabs) -->
+        <!-- Auth Tabs Navigation -->
         <div class="card-header bg-white border-bottom-0 pt-3 px-3 pb-0">
             <ul class="nav nav-tabs nav-justified" id="authTabs" role="tablist">
                 <li class="nav-item" role="presentation">
@@ -27,7 +27,7 @@
                 </li>
                 <li class="nav-item" role="presentation">
                     <button class="nav-link {% if active_tab == 'forgot' %}active{% endif %}" id="forgot-tab" data-bs-toggle="tab" data-bs-target="#forgot" type="button" role="tab">
-                        <i class="fa-solid fa-shield-halved me-1"></i> Reset
+                        <i class="fa-solid fa-shield-halved me-1"></i> Reset Password
                     </button>
                 </li>
             </ul>
@@ -35,41 +35,44 @@
 
         <div class="card-body p-4">
             <div class="tab-content" id="authTabsContent">
+                
                 <!-- 1. LOGIN TAB -->
                 <div class="tab-pane fade {% if active_tab == 'login' or not active_tab %}show active{% endif %}" id="login" role="tabpanel">
-                    <form action="{{ url_for('login') }}" method="POST">
+                    <form action="{{ url_for('login') }}" method="POST" id="loginForm" novalidate>
                         <div class="mb-3">
-                            <label for="login_username" class="form-label">Email Address or Username</label>
+                            <label for="login_email" class="form-label">Gmail Address</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fa-solid fa-envelope text-muted"></i></span>
-                                <input type="text" class="form-control" id="login_username" name="username" required placeholder="user@example.com or username">
+                                <input type="email" class="form-control" id="login_email" name="username" required placeholder="user@gmail.com" value="{{ form_email if form_email else '' }}">
                             </div>
+                            <div class="form-text small">Must be a valid @gmail.com address.</div>
                         </div>
                         <div class="mb-3">
                             <label for="login_password" class="form-label">Password</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fa-solid fa-lock text-muted"></i></span>
-                                <input type="password" class="form-control" id="login_password" name="password" required placeholder="Enter your password">
+                                <input type="password" class="form-control" id="login_password" name="password" required placeholder="Enter password">
                                 <button class="btn btn-outline-secondary toggle-password" type="button" data-target="login_password" title="Toggle password visibility">
                                     <i class="fa-solid fa-eye"></i>
                                 </button>
                             </div>
                         </div>
                         <button type="submit" class="btn btn-primary w-100 py-2 mt-2 shadow-sm">
-                            <i class="fa-solid fa-right-to-bracket me-1"></i> Log In to Dashboard
+                            <i class="fa-solid fa-right-to-bracket me-1"></i> Log In
                         </button>
                     </form>
                 </div>
 
                 <!-- 2. REGISTER TAB -->
                 <div class="tab-pane fade {% if active_tab == 'register' %}show active{% endif %}" id="register" role="tabpanel">
-                    <form action="{{ url_for('register') }}" method="POST">
+                    <form action="{{ url_for('register') }}" method="POST" id="registerForm" novalidate>
                         <div class="mb-3">
-                            <label for="reg_username" class="form-label">Email Address or Username</label>
+                            <label for="reg_email" class="form-label">Gmail Address</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fa-solid fa-at text-muted"></i></span>
-                                <input type="text" class="form-control" id="reg_username" name="username" required placeholder="student@example.com or username">
+                                <input type="email" class="form-control" id="reg_email" name="username" required placeholder="yourname@gmail.com">
                             </div>
+                            <div class="form-text small">Only Gmail addresses (@gmail.com) are accepted.</div>
                         </div>
                         <div class="mb-3">
                             <label for="reg_password" class="form-label">Password</label>
@@ -92,7 +95,7 @@
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label for="sec_question" class="form-label">Security Question (Offline Reset)</label>
+                            <label for="sec_question" class="form-label">Security Question</label>
                             <select class="form-select" id="sec_question" name="security_question">
                                 <option value="What is your favorite color?">What is your favorite color?</option>
                                 <option value="What was your first pet's name?">What was your first pet's name?</option>
@@ -102,48 +105,129 @@
                         </div>
                         <div class="mb-3">
                             <label for="sec_answer" class="form-label">Security Answer</label>
-                            <input type="text" class="form-control" id="sec_answer" name="security_answer" required placeholder="Your answer (case-insensitive)">
+                            <input type="text" class="form-control" id="sec_answer" name="security_answer" required placeholder="Your security answer">
                         </div>
                         <button type="submit" class="btn btn-success w-100 py-2 mt-2 shadow-sm">
-                            <i class="fa-solid fa-user-check me-1"></i> Register Account
+                            <i class="fa-solid fa-user-check me-1"></i> Create Account
                         </button>
                     </form>
                 </div>
 
-                <!-- 3. FORGOT PASSWORD TAB -->
+                <!-- 3. RESET PASSWORD TAB (STEP-INDICATOR WORKFLOW) -->
                 <div class="tab-pane fade {% if active_tab == 'forgot' %}show active{% endif %}" id="forgot" role="tabpanel">
-                    <form action="{{ url_for('forgot_password') }}" method="POST">
-                        <div class="mb-3">
-                            <label for="reset_username" class="form-label">Account Email / Username</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="fa-solid fa-user text-muted"></i></span>
-                                <input type="text" class="form-control" id="reset_username" name="username" required placeholder="Enter registered email or username">
+                    
+                    <!-- Visual Step Pills -->
+                    <div class="step-indicator-container pt-2">
+                        <div class="step-pill active" id="stepPill1">1</div>
+                        <div class="step-pill" id="stepPill2">2</div>
+                        <div class="step-pill" id="stepPill3">3</div>
+                    </div>
+
+                    <!-- Step 1: Input Gmail Address -->
+                    <div id="resetStep1">
+                        <form id="resetInitForm" action="{{ url_for('reset_init') }}" method="POST">
+                            <div class="mb-3">
+                                <label for="reset_email" class="form-label">Registered Gmail Address</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fa-solid fa-envelope text-muted"></i></span>
+                                    <input type="email" class="form-control" id="reset_email" name="email" required placeholder="example@gmail.com">
+                                </div>
                             </div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="reset_answer" class="form-label">Security Answer</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="fa-solid fa-circle-question text-muted"></i></span>
-                                <input type="text" class="form-control" id="reset_answer" name="security_answer" required placeholder="Answer to your security question">
+                            <button type="submit" class="btn btn-primary w-100 py-2 shadow-sm" id="btnResetInit">
+                                <i class="fa-solid fa-arrow-right me-1"></i> Continue
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Step 2: Security Question Verification -->
+                    <div id="resetStep2" class="d-none">
+                        <form id="resetVerifyForm" action="{{ url_for('reset_verify') }}" method="POST">
+                            <div class="mb-3">
+                                <label class="form-label text-muted small fw-bold">Security Question</label>
+                                <div class="p-3 bg-light rounded border fw-bold text-dark small mb-3" id="displaySecQuestion">
+                                    Loading question...
+                                </div>
+                                <label for="reset_sec_answer" class="form-label">Security Answer</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fa-solid fa-circle-question text-muted"></i></span>
+                                    <input type="text" class="form-control" id="reset_sec_answer" name="security_answer" required placeholder="Enter answer">
+                                </div>
                             </div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="new_password" class="form-label">New Password</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="fa-solid fa-key text-muted"></i></span>
-                                <input type="password" class="form-control" id="new_password" name="new_password" required placeholder="Enter new password">
-                                <button class="btn btn-outline-secondary toggle-password" type="button" data-target="new_password" title="Toggle password visibility">
-                                    <i class="fa-solid fa-eye"></i>
-                                </button>
+                            <button type="submit" class="btn btn-info text-white fw-bold w-100 py-2 shadow-sm mb-2" id="btnResetVerify">
+                                <i class="fa-solid fa-shield-check me-1"></i> Verify Answer
+                            </button>
+                            <button type="button" class="btn btn-link btn-sm w-100 text-decoration-none" id="btnRestartReset">
+                                Restart Reset
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Step 3: Enter New Password -->
+                    <div id="resetStep3" class="d-none">
+                        <form id="resetConfirmForm" action="{{ url_for('reset_confirm') }}" method="POST">
+                            <div class="mb-3">
+                                <label for="new_password_reset" class="form-label">New Password</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fa-solid fa-lock text-muted"></i></span>
+                                    <input type="password" class="form-control" id="new_password_reset" name="new_password" required placeholder="Enter new password">
+                                    <button class="btn btn-outline-secondary toggle-password" type="button" data-target="new_password_reset" title="Toggle password visibility">
+                                        <i class="fa-solid fa-eye"></i>
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                        <button type="submit" class="btn btn-warning text-dark fw-bold w-100 py-2 mt-2 shadow-sm">
-                            <i class="fa-solid fa-rotate-left me-1"></i> Reset Password
+                            <div class="mb-3">
+                                <label for="confirm_password_reset" class="form-label">Confirm Password</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fa-solid fa-shield text-muted"></i></span>
+                                    <input type="password" class="form-control" id="confirm_password_reset" name="confirm_password" required placeholder="Re-type new password">
+                                    <button class="btn btn-outline-secondary toggle-password" type="button" data-target="confirm_password_reset" title="Toggle password visibility">
+                                        <i class="fa-solid fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-warning text-dark fw-bold w-100 py-2 shadow-sm">
+                                <i class="fa-solid fa-rotate-left me-1"></i> Reset Password
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Step 4: Success State -->
+                    <div id="resetStep4" class="d-none text-center py-3">
+                        <i class="fa-solid fa-circle-check text-success display-4 mb-3"></i>
+                        <h4 class="fw-bold mb-2">Password Reset Successfully</h4>
+                        <p class="text-muted small mb-4">Your password has been updated. You can now log in with your new credentials.</p>
+                        <button type="button" class="btn btn-primary px-4 rounded-pill" id="btnGoToLogin">
+                            <i class="fa-solid fa-right-to-bracket me-1"></i> Go to Login
                         </button>
-                    </form>
+                    </div>
+
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Registration Success Modal -->
+{% if show_registration_modal %}
+<div class="modal fade show d-block" id="regSuccessModal" tabindex="-1" style="background: rgba(10,37,64,0.6);">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="modal-header bg-success text-white border-0 py-3">
+                <h5 class="modal-title fw-bold"><i class="fa-solid fa-circle-check me-2"></i>Registration Successful</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" id="btnCloseRegModal"></button>
+            </div>
+            <div class="modal-body text-center p-4">
+                <i class="fa-solid fa-user-check text-success display-3 mb-3"></i>
+                <h4 class="fw-bold mb-2">Account Created!</h4>
+                <p class="text-muted mb-0">Your AquaAI account has been registered. Proceed to log in with your credentials.</p>
+            </div>
+            <div class="modal-footer border-0 pb-4 justify-content-center">
+                <button type="button" class="btn btn-primary px-4 rounded-pill" id="btnSwitchToLogin">
+                    <i class="fa-solid fa-right-to-bracket me-1"></i> Proceed to Log In
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
 {% endblock %}
