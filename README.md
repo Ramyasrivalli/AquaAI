@@ -22,11 +22,7 @@ water_prob_ai/
 │   ├── helpers.py              # Configuration constants & data schemas
 │   ├── prediction.py           # ML inference engine & deterministic scoring
 │   ├── report.py               # ReportLab PDF laboratory report generator
-│   └── validation.py           # Input range & credential validators
-│
-├── deployment/                 # Docker deployment assets
-│   ├── Dockerfile
-│   └── docker-compose.yml
+│   └── validation.py           # Input range & credential validator
 │
 ├── models/                     # Serialized ML artifacts
 │   ├── best_model.pkl          # Serialized classifier model
